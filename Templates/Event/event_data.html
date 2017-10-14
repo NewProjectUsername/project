@@ -1,0 +1,285 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load bootstrap3 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+{% load i18n %}
+{% load widget_tweaks %}
+
+{% block head %}
+{{block.super}}
+<title>
+{% block title %}IDConference_my_events{% endblock %}
+</title>
+<!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.js"></script>-->
+{{ form.media }}
+{% endblock %}
+
+{%block header%}
+<section>
+<div class="header">
+   <div class="row">
+      <div class="header-top">
+         <img src="{% static 'images/logo.png' %}" alt="logo">
+      </div>
+      <div class="header-bottom create-event-block">
+         <div class="container">
+            <div class="row">
+               <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
+{% endblock %}
+{% block content %} 
+<!--section-starts-->
+<section>
+   <div class="my-events-steps">
+      <div class="container">
+         <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 menu">
+               <ul class="nav nav-pills ">
+                  {% if event.registration_step_finished > 0 %}
+                    <li role="presentation" class="active"><a href="{% url 'modify_event' event_name=event.subdomain %}"><span>STEP 1</span><span>Event details</span></a></li>
+
+                    <li role="presentation" {% if event.registration_step_finished < 2 %} class="disabled" {% endif %} ><a href={% if event.registration_step_finished > 1 %} "{%url 'add_event_description' event_name=event.subdomain %}" {% else %} "#" {% endif %}><span>STEP 2</span><span>Event text</span></a></li>
+
+                    <li role="presentation" {% if event.registration_step_finished < 3 %} class="disabled" {% endif %}><a href={% if event.registration_step_finished > 2 %} "{%url 'add_event_participants' event_name=event.subdomain %}" {% else %} "#" {% endif %}><span>STEP 3</span><span>Participant info</span></a></li>
+                
+                    <li role="presentation" {% if event.registration_step_finished < 4 %} class="disabled" {% endif %}><a href={% if event.registration_step_finished > 3 %} "{%url 'add_event_companion' event_name=event.subdomain %}" {% else %} "#" {% endif %} ><span>STEP 4</span><span>Companions</span></a></li>
+                
+                    <li role="presentation" {% if event.registration_step_finished < 5 %} class="disabled" {% endif %}><a href={% if event.registration_step_finished > 4 %} "{%url 'add_event_lectures' event_name=event.subdomain %}" {% else %} "#" {% endif %}><span>STEP 5</span><span>Agenda</span></a></li>
+                
+                    <li role="presentation" {% if event.registration_step_finished < 6 %} class="disabled" {% endif %}><a href={% if event.registration_step_finished > 5 %} "{%url 'add_event_payment' event_name=event.subdomain %}" {% else %} "#" {% endif %} ><span>STEP 6</span><span>Payment</span></a></li>
+
+                    <li role="presentation" {% if event.registration_step_finished < 7 %} class="disabled" {% endif %}><a href={% if event.registration_step_finished > 6 %} "{%url 'card_designer' event_name=event.subdomain %}" {% else %} "#" {% endif %} ><span>STEP 7</span><span>Card designer</span></a></li>
+
+                {% else %}
+
+                    <li role="presentation" class="active"><a href="#"><span>STEP 1</span><span>Event details</span></a></a></li>
+                    <li role="presentation" class="disabled"><a href="#" ><span>STEP 2</span><span>Event text</span></a></li>
+                    <li role="presentation" class="disabled"><a href="#"><span>STEP 3</span><span>Participant info</span></a></li>
+                    <li role="presentation" class="disabled"><a href="#"><span>STEP 4</span><span>Companions</span></a></li>
+                    <li role="presentation" class="disabled"><a href="#"><span>STEP 5</span><span>Agenda</span></a></li>
+                    <li role="presentation"  class="disabled"><a href="#"><span>STEP 6</span><span>Payment</span></a></li>
+                    <li role="presentation"  class="disabled"><a href="#"><span>STEP 7</span><span>Card designer</span></a></li>
+                {% endif %}  
+               </ul>
+               <div class="tab-content">
+                  <div id="home" class="tab-pane fade in active">
+                     <h3>STEP 1 Event details</h3>
+                     {% if event.registration_step_finished > 0 %}
+                     <!--  <div><button class="btn btn-default"><a href="{% url 'list_events' %}">{% trans 'My events' %}</a></button></div> -->
+                     <form method="POST" action="{% url 'modify_event' event_name=event.subdomain %}" enctype="multipart/form-data">
+                        {% else %}
+                     <form method="POST" action="{% url 'add_event' %}" enctype="multipart/form-data">
+                        {% endif %}
+                        <div class="row row_pad">
+                            {{form.lng}}
+                            {{form.lat}}
+                           {% csrf_token %}
+                           {{ form.non_field_errors }}
+                           <div class="fieldWrapper form-group col-md-12 col-lg-12 ">
+                              {{ form.name.errors }}
+                              <label for="{{ form.name.id_for_label }}">EVENT NAME</label>
+                              {{ form.name|add_class:"form-control" }}
+                           </div>
+                           {{ form.non_field_errors }}
+                           <div class="fieldWrapper form-group col-md-12 col-lg-12">
+                              {{ form.subdomain.errors }}
+                              <label for="{{ form.subdomain.id_for_label }}">SUBDOMAIN</label>
+                              {{ form.subdomain|add_class:"form-control" }}
+                           </div>
+                           {{ form.non_field_errors }}
+                           <div class="fieldWrapper form-group col-md-12 col-lg-12">
+                              {{ form.category.errors }}
+                              <label for="{{ form.category.id_for_label }}">CATEGORY</label>
+                              {{ form.category|add_class:"form-control" }}
+                           </div>
+                           {{ form.non_field_errors }}
+                           <div class="fieldWrapper form-group col-md-12 col-lg-12 dateContainer">
+                              <div class="form-group col-md-6 col-lg-6">
+                                 {{ form.start_time.errors }}
+                                 <label for="{{ form.start_time.id_for_label }}" >START TIME</label>
+                                 {{ form.start_time|add_class:"form-control" }}
+                              </div>
+                              <div class="form-group col-md-6 col-lg-6">
+                                 {{ form.end_time.errors }}
+                                 <label for="{{ form.end_time.id_for_label }}" >END TIME</label>
+                                 {{ form.end_time|add_class:"form-control"}}
+                              </div>
+                           </div>
+                           <div class="fieldWrapper form-group col-md-6 col-lg-6">
+                              {{ form.location.errors }}
+                              <label for="{{ form.location.id_for_label }}">LOCATION</label>
+                              {{ form.location|add_class:"form-control" }}
+                           </div>
+                           <div class="col-md-12 col-lg-12 autogenerate">
+                              <!-- autogenerate username -->
+                              {{ form.api_username.errors }}
+                              {{ form.api_username|add_class:"form-control"|attr:"placeholder:Autogenerated User name for tracking"|attr:"readonly"}}
+                              <!-- autogenerate password -->
+                              {{ form.api_key.errors }}
+                              {{ form.api_key|add_class:"form-control"|attr:"placeholder:Autogenerated Password for tracking"|attr:"readonly"}}
+                              <!-- auto generated mail -->
+                              {{ form.sent_mail.errors }}
+                              {{ form.sent_mail|add_class:"form-control"|attr:"placeholder:Autogenerated Email for tracking"|attr:"readonly"}}
+                           </div>
+                           <div class="fieldWrapper form-group col-md-6 col-lg-6">
+                              {{ form.is_public.errors }}
+                              <label class="checkbox-inline checkbox-bootstrap checkbox-lg info-checkbox" for="{{ form.is_public.id_for_label }}">
+                              {{ form.is_public|add_class:"form-control" }}
+                              <span class="checkbox-placeholder">
+                              </span>
+                              Event visible on main page
+                              </label>
+                           </div>
+                           <div class="col-xs-9 col-xs-offset-3 upload-file">
+                              <div class="upload-logo pull-left upload-logo-step-one">
+                                 {{form.non_field_errors}}
+                                 {{ form.logo.errors }}
+                                 {{form.logo}}
+                                 <div>
+                                    <img src="{% static 'images/upload.png' %}" alt="upload">
+                                    <span>UPLOAD LOGO</span>
+                                 </div>
+                              </div>
+                              <div class="upload-photo pull-left upload-photo-step-one">
+                                 {{form.non_field_errors}}
+                                 {{form.public_logo.errors }}
+                                 {{form.public_logo}}
+                                 <div>
+                                    <img src="{% static 'images/upload.png' %}" alt="upload">
+                                    <span>UPLOAD EVENT PHOTO</span>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                        <div class="row row_pad">
+                           {% buttons %}
+                           {% if event.registration_step_finished == 7 %}
+                           <div class="col-sm-6 col-md-6 col-lg-6">
+                              <div class="back-btn">
+                                 <a href="{% url 'list_events' %}"class="btn"><img src="{% static 'images/download.png' %}" alt="download"><span>{% trans "SAVE AND GO BACK TO THE EVENT LIST" %}</span></a>
+                              </div>
+                           </div>
+                           </button>
+                           <!-- </a> -->
+                           <div class="col-sm-6 col-md-6 col-lg-6 text-right">
+                              <div class="next-btn">
+                                 <button class="btn" type="submit"><img src="{% static 'images/next-btn.png' %}" alt="next-btn"><span>{% trans "SAVE " %}</span></button>
+                              </div>
+                     </form>
+                     </div>
+                     {% else %}
+                     <!-- <a href="{% url 'list_events' %}"> -->
+                     <div class="col-sm-6 col-md-6 col-lg-6">
+                     <div class="back-btn">
+                     <a href="{% url 'list_events' %}"class="btn"><img src="{% static 'images/download.png' %}" alt="download"><span>{% trans "SAVE AND GO BACK TO THE EVENT LIST" %}</span></a>
+                     </div>
+                     </div>
+                     </button>
+                     <!-- </a> -->
+                     <div class="col-sm-6 col-md-6 col-lg-6 text-right">
+                     <div class="next-btn">
+                     <button class="btn" type="submit"><img src="{% static 'images/next-btn.png' %}" alt="next-btn"><span>{% trans "SAVE AND GO TO NEXT STEP" %}</span></button>
+                     </div>
+                     </div>
+                     </form>
+                     {% endif %}
+                     {% endbuttons %}
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</section>
+{% endblock content %}
+{% block end_script %}
+<script src="https://maps.googleapis.com/maps/api/js?key={{maps}}&libraries=places&callback=initAutocomplete" async defer></script>
+<script type="text/javascript">
+   $('html').bind('keypress', function(e){
+       if(e.keyCode == 13)
+       {
+           return false;
+       }
+   });
+   var lat;
+   var lng;
+   var place;
+   function initAutocomplete() {
+       // Create the autocomplete object, restricting the search to geographical
+       // location types.
+       autocomplete = new google.maps.places.Autocomplete(
+           /** @type {!HTMLInputElement} */(document.getElementById('id_location')),
+           {types: ['geocode']});
+   
+       // When the user selects an address from the dropdown, populate the address
+       // fields in the form.
+       autocomplete.addListener('place_changed', function () {
+           var place = autocomplete.getPlace();
+           if (!place.geometry) {
+               // User entered the name of a Place that was not suggested and
+               // pressed the Enter key, or the Place Details request failed.
+               window.alert("No details available for input: '" + place.name + "'");
+               return;
+           }
+           lat = place.geometry.location.lat() 
+          lng = place.geometry.location.lng()
+           $("#id_lat").val(lat);
+           $("#id_lng").val(lng);
+       });
+   }
+   function geolocate() {
+       if (navigator.geolocation) {
+           navigator.geolocation.getCurrentPosition(function(position) {
+               var geolocation = {
+                   lat: position.coords.latitude,
+                   lng: position.coords.longitude
+               };
+               var circle = new google.maps.Circle({
+                   center: geolocation,
+                   radius: position.coords.accuracy
+               });
+               autocomplete.setBounds(circle.getBounds());
+           });
+       }
+   }
+
+   $( document ).ready(function() {
+      $('#id_subdomain').on("change",(function(e){
+        e.preventDefault();
+        var subdomain = $('#id_subdomain').val();
+        var token = $('input[name=csrfmiddlewaretoken]').val();
+  
+        $.ajax({
+         url: "{% url 'subdomain_check' %}",
+         data: {
+            subdomain: subdomain,
+            csrfmiddlewaretoken: token
+         },
+         error: function() {
+            console.log('error');
+         },
+         dataType: 'text',
+         success: function(data) {
+            var json = JSON.parse(data)
+            if (json.result === "taken"){
+              console.log(json.result);
+            }
+            else {
+              console.log(json.result)
+            }
+         },
+         type: 'POST'
+        });
+      }));
+   });
+  
+
+</script>
+{%endblock%}

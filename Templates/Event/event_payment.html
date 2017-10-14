@@ -1,0 +1,484 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load bootstrap3 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+{% load i18n %}
+{% load widget_tweaks %}
+{% load formset_tags %}
+
+{% block head %}
+{{block.super}}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.js"></script>
+<script type="text/javascript" src="{% static 'js/jquery.formset.js' %}"></script>
+{{ form.media }}
+{% endblock %}
+
+{%block header%}
+<div class="header">
+    <div class="row">
+        <div class="header-top">
+            <img src="{% static 'images/logo.png' %}" alt="logo">
+        </div>
+        <div class="header-bottom create-event-block">
+            <div class="container">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block content %}
+<section section class="my-events-steps lectures payment-content">
+<div class="my-events-steps">
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 menu">
+                <ul class="nav nav-pills ">
+                    <li role="presentation"><a href="{% url 'modify_event' event_name=event.subdomain %}"><span>STEP 1</span><span>Event details</span></a></li>
+                
+                <li role="presentation"><a href="{%url 'add_event_description' event_name=event.subdomain %}"><span>STEP 2</span><span>Event text</span></a></li>
+
+                 <li role="presentation"><a href="{%url 'add_event_participants' event_name=event.subdomain %}"><span>STEP 3</span><span>Participant info</span></a></li>
+                
+                <li role="presentation"> <a href="{%url 'add_event_companion' event_name=event.subdomain %}"><span>STEP 4</span><span>Companions</span></a></li>
+                
+                <li role="presentation" ><a href="{%url 'add_event_lectures' event_name=event.subdomain %}"><span>STEP 5</span><span>Lectures</span></a></li>
+                
+                <li role="presentation" class="active"><a href="{%url 'add_event_payment' event_name=event.subdomain %}"><span>STEP 6</span><span>Payment</span></a></li>
+
+                <li role="presentation" {% if event.registration_step_finished < 7 %} class="disabled" {% endif %}><a href={% if event.registration_step_finished > 6 %} "{%url 'card_designer' event_name=event.subdomain %}" {% else %} "#" {% endif %} ><span>STEP 7</span><span>Card designer</span></a></li>
+                </ul>
+                               <div class="tab-content">
+                    <div id="step6" class="tab-pane fade in active">
+                        <ul class="nav nav-pills sub-tab">
+                            <li class="first active"><a data-toggle="pill" href="#paymenttext"><span>PAYMENT TEXT AND TICKETS</span></a></li>
+                            <li><a data-toggle="pill" href="#paymentmethod"><span>PAYMENT METHOD</span></a></li>
+                        </ul>
+                        
+                            <div class="tab-content">
+                                    <div id="paymenttext" class="tab-pane fade in active">
+                                        <h3>STEP 6 Tickets and Terms of payment</h3>
+                                        <form class="formsetform" method="POST" action="{% url 'add_event_payment' event_name=event.subdomain %}">
+                                            {% csrf_token %}
+                                            <div class="form-group col-sm-12 col-md-12 col-lg-12 ticket-content">
+                                                <label class="payment-label">TICKETS</label>
+                                          <!-- <div class="row">
+                                              <div class="col-xs-12 col-sm-4 col-md-4">
+                                                    <label>Ticket Name</label>
+                                              </div>
+                                              <div class="col-xs-12 col-sm-4 col-md-4">
+                                                    <label>Type of registration<i class="fa fa-info" aria-hidden="true"></i></label>
+                                              </div>
+                                              <div class="col-xs-12 col-sm-2 col-md-2">
+                                                <label>Price</label>
+                                              </div>
+                                              <div class="col-xs-12 col-sm-2 col-md-2">
+                                              </div>
+                                          </div> -->
+                                                <div class="row form-inline">
+                                                        <div id="formset" data-formset-prefix="{{ formset.prefix }}">
+                                                        {{ formset.management_form }}
+                                                            <div data-formset-body>
+                                                            {% for form in formset %}
+                                                                <div class="row pay-form info-details" data-formset-form>
+                                                                    {% bootstrap_form form %}
+                                                                    <!-- {% for field in form %}
+                                                                        {{ field }}
+                                                                    {% endfor %} -->
+                                                                    <span class="col-xs-12 col-sm-1 col-md-1 glyphicon glyphicon-trash addBtnRemove" data-formset-delete-button></span>
+                                                                </div>
+                                                            {% endfor %}
+                                                            </div>
+                                                        <!-- The empty form template. By wrapping this in a <script> tag, the
+                                                        __prefix__ placeholder can easily be replaced in both attributes and
+                                                        any scripts -->
+                                                        <script type="form-template" data-formset-empty-form>
+                                                            {% escapescript %}
+                                                                <div class="row pay-form info-details" data-formset-form>
+                                                                    {% bootstrap_form formset.empty_form %}
+                                                                    <span class="col-xs-12 col-sm-1 col-md-1 glyphicon glyphicon-trash addBtnRemove" data-formset-delete-button></span>
+                                                                </div>
+                                                            {% endescapescript %}
+                                                        </script>
+
+                                                        <!-- This button will add a new form when clicked -->
+                                                        <div class="text-right add-ticket" data-formset-add><span class="glyphicon glyphicon-plus addBtn"></span> ADD TICKET</div>
+                                                        
+                                                        <script>jQuery(function($) {
+                                                            $("#formset").formset({
+                                                                animateForms: true,
+                                                                reorderMode: 'dom',
+                                                            });
+                                                        });</script>
+                                                        </div>
+
+                                                    </div>
+
+                                            <br/><br/>
+                                            <label class="payment-label terms-conditions">TERMS &CONDITIONS OF PAYMENT
+                                                <label class="status">
+                                                    <i class="fa fa-chevron-up up-pay disabled" aria-hidden="true"></i>
+                                                    <i class="fa fa-chevron-down down-pay enabled" aria-hidden="true"></i>
+                                                </label>
+                                            </label>
+                                            <div class="form-group payment-conditions hide">
+                                                {{ form.payment_text }}
+                                            </div>
+                                            </div>
+                                            {{ form.add_finished.as_hidden }}
+                                               <div class="row">
+                                                {% buttons %}
+                                                {% if event.add_finished %}
+                                                <div class="col-sm-6 col-md-6 col-lg-6">
+                                                    <div class="back-btn">
+                                                     <a href="{% url 'list_events' %}"class="btn"><img src="{% static 'images/download.png' %}" alt="download"><span>{% trans "SAVE AND GO BACK TO THE EVENT LIST" %}</span></a>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6 col-md-6 col-lg-6 text-right">
+                                                    <div class="next-btn">
+                                                        <a href="{% url 'list_events' %}"class="btn"><img src="{% static 'images/next-btn.png' %}" alt="next-btn"><span>{% trans "SAVE AND GO TO NEXT STEP" %}</span></a>
+                                                    </div>
+                                                </div>
+                                                </form> 
+                                                {% else %}
+                                                     <div class="col-sm-6 col-md-6 col-lg-6 text-right save-next-content pull-right">
+                                                        <div class="next-btn">
+                                                            <a href="{%url 'card_designer' event_name=event.subdomain %}"class="btn"><img src="{% static 'images/next-btn.png' %}" alt="next-btn"><span>{% trans "SAVE AND GO TO NEXT STEP" %}</span></a>
+                                                           <!-- <button type="submit" class="btn"><img src="{% static 'images/next-btn.png' %}" alt="next-btn"><span>{% trans "SAVE AND GO TO NEXT STEP" %}</span></button> -->
+                                                        </div>
+                                                     </div>
+                                                     <div class="col-sm-2 col-md-2 col-lg-2 delete-content" >
+                                                        <a href="#" data-toggle="modal" data-target="#deleteModal" class="btn"><img src="{% static 'images/delete.png' %}" alt="delete"><span>DELETE</span></a>
+                                                     </div>
+                                                     <div class="col-sm-4 col-md-4 col-lg-4 save-back-content">
+                                                        <a href="{%url 'card_designer' event_name=event.subdomain %}"class="btn"><img src="{% static 'images/download.png' %}" alt="download"><span>{% trans "SAVE AND GO BACK TO THE EVENT LIST" %}</span></a>
+                                                     </div>
+
+                                                  </div>
+                                               </div>
+                                            </form>
+                                            <!-- Modal -->
+                                            <div class="modal fade" id="deleteModal" role="dialog">
+                                               <div class="modal-dialog">
+                                                  <!-- Modal content-->
+                                                  <div class="modal-content">
+                                                     <div class="modal-header">
+                                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                                        <h4 class="modal-title">Delete event</h4>
+                                                     </div>
+                                                     <div class="modal-body">
+                                                        <p>Are you sure you want to delete the event? All the lectures and payment methdos, bounded to the event
+                                                           will be deleted as well.
+                                                        </p>
+                                                     </div>
+                                                     <div class="modal-footer">
+                                                        <a href="#" id="buttonDelete" name="{{event.subdomain}}" class="btn btn-default" data-dismiss="modal">Delete</a>
+                                                        {% csrf_token %}
+                                                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                                     </div>
+                                                  </div>
+                                               </div>
+                                            </div>
+                                            <script>
+                                               $('#buttonDelete').on('click', function(e) {
+                                                 e.preventDefault();
+                                                 var name = $(this).data('name');
+                                                 $.ajax({
+                                                     url:  "{% url 'delete_event' event_name=event.subdomain %}",
+                                                     type: 'GET',
+                                                     success: function(html){
+                                                         parent.window.location="{% url 'list_events' %}";
+                                                         e.preventDefault();
+                                                     },
+                                                     error: function(){
+                                                         alert("error");
+                                                     }
+                                                 });
+                                               });
+                                            </script>
+                    <!--                         <div class="col-sm-4 col-md-4 col-lg-4 save-back-content">
+                                               <a href="{% url 'list_events' %}"class="btn"><img src="{% static 'images/download.png' %}" alt="download"><span>{% trans "SAVE AND GO BACK TO THE EVENT LIST" %}</span></a>
+                                            </div> -->
+                                            {% endif %}
+                                            {% endbuttons %}
+                                        
+                                    <div id="paymentmethod" class="tab-pane fade">
+                                        <h3>STEP 6 Payment methods</h3>
+                                        <form method="POST" action="{% url 'add_event_payment' event_name=event.subdomain %}">
+                                          {% csrf_token %}   
+                                            <div class="form-group col-sm-12 col-md-12 col-lg-12 payment-label">
+                                                <label class="payment-label">PAYPAL 
+                                                    <label class="status">
+                                                        <i class="fa fa-chevron-up enabled" aria-hidden="true"></i>
+                                                        <i class="fa fa-chevron-down disabled" aria-hidden="true"></i>
+                                                    </label>
+                                                </label>
+                                                <div class="form-group paypal-content">
+                                                    <div class="Switch On">
+                                                        <div class="Toggle"></div>
+                                                        <span class="Off"></span>
+                                                        <span class="On"></span>
+                                                    </div>
+                                                    <label class="status">
+                                                        <span class="enabled">PayPal Enabled</span>
+                                                        <span class="disabled">PayPal Disabled</span>
+                                                    </label>
+                                                    <div class="client-details">
+                                                        <div class="form-group col-md-12 col-lg-12">
+                                                            {% bootstrap_form form_pp %}
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="paypal-mail">
+                                                    <label>Paypal E-mail message</label>
+                                                    <div class="form-group paypal-note">
+                                                        {{ form.payment_sent_mail_paypal }}
+                                                    </div>
+                                                </div>
+                                                <div class="form-group upn-content">
+                                                        <label class="payment-label">BANK TRANSFER
+                                                            <label class="status">
+                                                                <i class="fa fa-chevron-up enabled" aria-hidden="true"></i>
+                                                                <i class="fa fa-chevron-down disabled" aria-hidden="true"></i>
+                                                            </label>
+                                                        </label>
+                                                        <div class="Switch Off">
+                                                            <div class="Toggle"></div>
+                                                            <span class="On"></span>
+                                                            <span class="Off"></span>
+                                                        </div>
+                                                        <label class="status">
+                                                            <span class="enabled">Bank Transfer Enabled</span>
+                                                            <span class="disabled">Bank Transfer Disabled</span>
+                                                        </label>
+                                                        <div class="company-details">
+                                                            <div class="form-group col-md-12 col-lg-12">
+                                                                {% bootstrap_form form_upn %}
+                                                            </div>
+                                                        </div>
+                                                        <div class="upn-mail">
+                                                            <label>PAYMENT UPN Mail</label>
+                                                            <div class="form-group ">
+                                                                {{ form.payment_sent_mail_upn }}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                <!-- <div class="form-group mastercard-content">
+                                                    <label class="payment-label">BANK TRANSFER 
+                                                        <label class="status">
+                                                            <i class="fa fa-chevron-up enabled" aria-hidden="true"></i>
+                                                            <i class="fa fa-chevron-down disabled" aria-hidden="true"></i>
+                                                        </label>
+                                                    </label>
+                                                    <div class="Switch Off">
+                                                        <div class="Toggle"></div>
+                                                        <span class="On"></span>
+                                                        <span class="Off"></span>
+                                                    </div>
+                                                    <label class="status">
+                                                        <span class="enabled">Bank Transfer Enabled</span>
+                                                        <span class="disabled">Bank Transfer Disabled</span>
+                                                    </label>
+                                                </div> -->
+                                                <!-- <br/> -->
+                                                <!-- <br/> -->
+                                                <label>Promotion Code:<i class="fa fa-info" aria-hidden="true"></i></label>
+                                                <div class="promotion-radio">
+                                                    <span class='radio'>
+                  <input type='radio' id='r1'name='radios' checked='true'/>
+                  <label for='r1'><span></span>Yes</label>
+                                                    </span>
+                                                    <span class='radio'>
+                  <input type='radio' id='r2' name='radios'/>
+                  <label for='r2'><span></span>No</label>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-12 col-md-12 col-lg-12">
+                                               <div class="row">
+                                                     {% buttons %}
+                                                    {% if event.registration_step_finished == 7 %}
+                                                    <div class="col-sm-2 col-md-2 col-lg-2 delete-content payment">
+                                                        <a href="#" class="btn" data-toggle="modal" data-target="#deleteModal"><img src="{% static 'images/delete.png' %}" alt="delete"><span>{% trans "DELETE" %}</span></a>
+                                                    </div>
+                                                    <div class="col-sm-6 col-md-6 col-lg-6">
+                                                        <div class="back-btn">
+                                                           <a href="{% url 'list_events' %}"class="btn"><img src="{% static 'images/download.png' %}" alt="download"><span>{% trans "SAVE AND GO BACK TO THE EVENT LIST" %}</span></a>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-4 col-md-4 col-lg-4 text-right">
+                                                        <div class="next-btn">
+                                                            <button class="btn" type="submit"><img src="{% static 'images/next-btn.png' %}" alt="next-btn"><span>{% trans "SAVE AND GO TO NEXT STEP" %}</span></button>
+                                                        </div>
+                                                    </div>
+                                                    </form> 
+                                                    {% else %}
+                                                     <div class="col-sm-6 col-md-6 col-lg-6 text-right save-next-content pull-right">
+                                                        <div class="next-btn">
+                                                           <button type="submit" class="btn"><img src="{% static 'images/next-btn.png' %}" alt="next-btn"><span>{% trans "SAVE AND GO TO NEXT STEP" %}</span></a>
+                                                        </div>
+                                                     </div>
+                                                     <div class="col-sm-2 col-md-2 col-lg-2 delete-content" >
+                                                        <a href="#" data-toggle="modal" data-target="#deleteModal" class="btn"><img src="{% static 'images/delete.png' %}" alt="delete"><span>DELETE</span></a>
+                                                     </div>
+                                                     <div class="col-sm-4 col-md-4 col-lg-4 save-back-content">
+                                                        <a href="{% url 'list_events' %}"class="btn"><img src="{% static 'images/download.png' %}" alt="download"><span>{% trans "SAVE AND GO BACK TO THE EVENT LIST" %}</span></a>
+                                                     </div>
+
+                                                  </div>
+                                               </div>
+                                            <!-- Modal -->
+                                            <div class="modal fade" id="deleteModal" role="dialog">
+                                               <div class="modal-dialog">
+                                                  <!-- Modal content-->
+                                                  <div class="modal-content">
+                                                     <div class="modal-header">
+                                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                                        <h4 class="modal-title">Delete event</h4>
+                                                     </div>
+                                                     <div class="modal-body">
+                                                        <p>Are you sure you want to delete the event? All the lectures and payment methdos, bounded to the event
+                                                           will be deleted as well.
+                                                        </p>
+                                                     </div>
+                                                     <div class="modal-footer">
+                                                        <a href="#" id="buttonDelete" name="{{event.subdomain}}" class="btn btn-default" data-dismiss="modal">Delete</a>
+                                                        {% csrf_token %}
+                                                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                                     </div>
+                                                  </div>
+                                               </div>
+                                            </div>
+                                            <script>
+                                               $('#buttonDelete').on('click', function(e) {
+                                                 e.preventDefault();
+                                                 var name = $(this).data('name');
+                                                 $.ajax({
+                                                     url:  "{% url 'delete_event' event_name=event.subdomain %}",
+                                                     type: 'GET',
+                                                     success: function(html){
+                                                         parent.window.location="{% url 'list_events' %}";
+                                                         e.preventDefault();
+                                                     },
+                                                     error: function(){
+                                                         alert("error");
+                                                     }
+                                                 });
+                                               });
+                                            </script>
+                                            {% endif %}
+                                            {% endbuttons %}
+                                            </div>
+                                        </form>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<script type="text/javascript">
+    $(".payment-test").parent().addClass("col-xs-12 col-md-6");
+    function paymentDiv() {
+        $(".payment-test-name").parent().addClass("col-xs-12 col-sm-4 col-md-4")
+        $(".payment-test-day").parent().addClass("col-xs-12 col-sm-4 col-md-4")
+        $(".payment-test-day").parent().find("label:not(:has(i))").append('<i class="fa fa-info" aria-hidden="true"></i>')
+        $(".payment-test-price").parent().addClass("col-xs-12 col-sm-2 col-md-2")
+        $(".payment-test-free").parent().parent().parent().addClass("col-xs-12")
+        $(".payment-test-payable").parent().parent().parent().addClass("col-xs-12")
+        $(".payment-test-payable").parent().addClass("checkbox-inline checkbox-bootstrap checkbox-lg check-design")
+        $(".payment-test-free").parent().addClass("checkbox-inline checkbox-bootstrap checkbox-lg check-design")
+        if ($(".payment-test-payable").parent().not("span")) {
+            $(".payment-test-payable").parent().append('<span class="checkbox-placeholder"></span>');
+        }
+        if ($(".payment-test-free").parent().not("span")) {
+            $(".payment-test-free").parent().append('<span class="checkbox-placeholder"></span>');
+        }
+        $("#id_form-0-DELETE").parent().addClass("hidden")
+        $("#id_form-1-DELETE").parent().addClass("hidden")
+        $("#id_form-2-DELETE").parent().addClass("hidden")
+        $("#id_form-3-DELETE").parent().addClass("hidden")
+        $("#id_form-4-DELETE").parent().addClass("hidden")
+        $("#id_form-5-DELETE").parent().addClass("hidden")
+        $("#id_form-6-DELETE").parent().addClass("hidden")
+        $("#id_form-7-DELETE").parent().addClass("hidden")
+        $("#id_form-8-DELETE").parent().addClass("hidden")
+        $("#id_form-9-DELETE").parent().addClass("hidden")
+        $("#id_form-10-DELETE").parent().addClass("hidden")
+    }
+    paymentDiv();
+
+    $(".add-ticket").click(function() {
+        setTimeout(function() {
+            paymentDiv();
+        }, 10);
+    });
+  String.prototype.replaceAll = function(search, replacement) {
+      var target = this;
+      return target.split(search).join(replacement);
+  };
+
+  $('#show_paypal, #show_upn').change(function(){
+    if($(this).prop("checked")) {
+      $(this).parent().parent().find(".forma").show();
+    } else {
+      $(this).parent().parent().find(".forma").hide();
+    }
+  });
+
+
+ $('.Switch').click(function() {
+                $(this).toggleClass('Off').toggleClass('On');
+            });
+         $('.paypal-content .Switch.On').click(function(){
+                $(".client-details").toggle();
+                $(".paypal-mail").toggle();
+                $(".company-details").toggle('active').css("display", "block");
+                $(".upn-mail").toggle('active').css("display", "block");
+                $('.upn-content > .Switch').toggleClass('On').toggleClass('Off');
+                $(".status").toggleClass('active');
+            });
+
+            $('.upn-content .Switch.Off').click(function(){
+                $(".company-details").toggle('active').css("display", "block");
+                $(".upn-mail").toggle('active').css("display", "block");
+                $(".upn-content .status").toggleClass('active');
+                $('.mastercard-content > .Switch').toggleClass('On').toggleClass('Off');
+            });
+
+            $('.mastercard-content .Switch.Off').click(function(){
+                $(".mastercard-content .status").toggleClass('active');
+            });
+
+        $(".terms-conditions").click(function() {
+            console.log("updae", $(".fa-chevron-up").hasClass("enabled"));
+            $(".payment-conditions").toggleClass("hide");
+            if ($(".up-pay").hasClass("disabled")) {
+                $(".up-pay").removeClass("disabled");
+                $(".up-pay").addClass("enabled");
+                $(".down-pay").addClass("disabled");
+                $(".down-pay").removeClass("enabled");
+            } else {
+                $(".up-pay").removeClass("enabled");
+                $(".up-pay").addClass("disabled");
+                $(".down-pay").addClass("enabled");
+                $(".down-pay").removeClass("disabled");
+            }
+        });
+
+
+</script>
+<!--section-end-->
+{%endblock%}

@@ -1,0 +1,385 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load bootstrap3 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+{% load i18n %}
+
+
+{% block head %}
+{{block.super}}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.js"></script>
+<script src="{% static 'js/selectall.js' %}"></script>
+{{ form.media }}
+{% endblock %}
+
+
+{%block header%}
+<div class="header">
+    <div class="row">
+        <div class="header-top">
+            <img src="{% static 'images/logo.png' %}" alt="logo">
+        </div>
+        <div class="header-bottom create-event-block">
+            <div class="container">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block content %}
+<section>
+<div class="my-events-steps">
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 menu">
+                <ul class="nav nav-pills ">
+
+                <li role="presentation"><a href="{% url 'modify_event' event_name=event.subdomain %}"><span>STEP 1</span><span>Event details</span></a></li>
+                
+                <li role="presentation"><a href="{%url 'add_event_description' event_name=event.subdomain %}"><span>STEP 2</span><span>Event text</span></a></li>
+
+                 <li role="presentation"><a href="{%url 'add_event_participants' event_name=event.subdomain %}"><span>STEP 3</span><span>Participant info</span></a></li>
+                
+                <li role="presentation" class="active"> <a href="{%url 'add_event_companion' event_name=event.subdomain %}"><span>STEP 4</span><span>Companions</span></a></li>
+                
+                <li role="presentation" {% if event.registration_step_finished < 5 %} class="disabled" {% endif %}><a href={% if event.registration_step_finished > 4 %} "{%url 'add_event_lectures' event_name=event.subdomain %}" {% else %} "#" {% endif %}><span>STEP 5</span><span>Agenda</span></a></li>
+                
+                <li role="presentation" {% if event.registration_step_finished < 6 %} class="disabled" {% endif %}><a href={% if event.registration_step_finished > 5 %} "{%url 'add_event_payment' event_name=event.subdomain %}" {% else %} "#" {% endif %} ><span>STEP 6</span><span>Payment</span></a></li>
+
+                <li role="presentation" {% if event.registration_step_finished < 7 %} class="disabled" {% endif %}><a href={% if event.registration_step_finished > 6 %} "{%url 'card_designer' event_name=event.subdomain %}" {% else %} "#" {% endif %} ><span>STEP 7</span><span>Card designer</span></a></li>
+                </ul>
+                <div class="tab-content">
+                <div id="step4" class="tab-pane fade in active">
+                  <h3>STEP 4 Comapanions<i class="fa fa-info" aria-hidden="true"></i><p>Select which information do you want and which is required?</p></h3>
+            <form method="POST" action="{% url 'add_event_companion' event_name=event.subdomain %}">
+                        {% csrf_token %}
+                        {% if event.registration_step_finished == 7 %}
+                        <!-- <div><button class="btn btn-default"><a href="{% url 'list_events' %}">{% trans 'My events' %}</a></button></div> -->
+                        {%endif%}
+                            {% if fields_personal %}
+                    <div class="col-sm-5 col-md-5 col-lg-5 info-details">
+                            <div class="info-heading">
+                                <h4>BASIC INFO</h4>
+                                <label class="checkbox-inline checkbox-bootstrap checkbox-lg">
+                                <input class="basic" type="checkbox">
+                                <span class="checkbox-placeholder"></span>
+                                Select all
+                                </label>
+                            </div>
+                {% for field in fields_personal %}
+                {% if 'name' == field.0 or 'surname' == field.0 %}
+                <!-- BASIC INFO -->
+                <div class="form-group info-content">
+                    <div class="col-sm-7 col-md-7 col-lg-7">
+                            {% if forloop.counter == 1 %}
+                        </br></br>
+                    {% endif %}
+                        <label>{{ field.1|upper }}*</label>
+                    </div>
+                    <div class="col-sm-5 col-md-5 col-lg-5">
+                        <div class="col-sm-6 col-md-6 col-lg-6">
+                                {% if forloop.counter == 1 %}
+                                <div class="required-title-new required-title-new-right col-xs-12">Wanted</div></br></br>
+                            {% endif %}
+                           <label class="checkbox-inline checkbox-bootstrap checkbox-lg">
+                            <input type="checkbox" class="basic-name sub-check" data-stateName="state_name" value="{{ field.0 }}" name="form" id="form-{{field.0}}" {% if field.0 in event.companion_fields %} checked {% endif %}>
+                            <span class="checkbox-placeholder"></span>
+                           </label>
+                        </div>
+                        {% if field.2 != 'BooleanField' %}
+                        <div class="col-sm-6 col-md-6 col-lg-6">
+                                {% if forloop.counter == 1 %}
+                                <div class="required-title-new required-title-new-right col-xs-12">Required</div></br></br>
+                            {% endif %}
+                            <label class="checkbox-inline checkbox-bootstrap checkbox-lg">
+                            <input type="checkbox" class="basic-surname sub-check"  value="{{ field.0 }}" name="required" id="required-{{field.0}}" {% if field.0 in event.companion_reqired_fields %} checked {% else %} {% if not event.companion_fields or field.0 not in event.companion_fields %} disabled {% endif %} {% endif %}>
+                            <span class="checkbox-placeholder"></span>
+                           </label>
+                        </div>
+                        {%endif%}
+                    </div>
+                </div>
+                {% endif %}
+                    {% if field.2 != 'BooleanField' %}
+                        <script>
+                    $('#form-{{field.0}}').change( function() {
+                            $('#required-{{field.0}}').not(this).prop('checked', false);  
+                            $('#required-{{field.0}}').attr('disabled', !$(this).is(':checked'));
+                        });
+                        </script>
+                    {% endif %}
+                {% endfor %}
+                </div>
+                {% endif %}
+              <div class="col-sm-1 col-md-1 col-lg-1"></div>      
+
+               <!-- event info -->
+
+         {% if fields_event %}
+         <div class="col-sm-6 col-md-6 col-lg-6 info-details">
+             <div class="info-heading">
+                 <h4>EVENT INFO</h4>
+                 <label class="checkbox-inline checkbox-bootstrap checkbox-lg">
+                 <input type="checkbox" class="event-info">
+                 <span class="checkbox-placeholder"></span>
+                 Select all
+                 </label>
+             </div>
+             
+             {% for field in fields_event %}
+             <div class="form-group info-content">
+                 <div class="col-sm-8 col-md-8 col-lg-8">
+                    {% if forloop.counter == 1 %}
+                        </br></br>
+                    {% endif %}
+                     <label>{{ field.1|upper }}</label>
+                 </div>
+                 <div class="col-sm-4 col-md-4 col-lg-4">
+                     <div class="col-sm-6 col-md-6 col-lg-6">
+                        {% if forloop.counter == 1 %}
+                            <div class="required-title-new required-title-new-right col-xs-12">Wanted</div></br></br>
+                        {% endif %}
+                        <label class="checkbox-inline checkbox-bootstrap checkbox-lg">
+                         <input type="checkbox" class="sub-check event-name" value="{{ field.0 }}" name="form" id="form-{{field.0}}" {% if field.0 in event.companion_fields %} checked {% endif %}>
+                         <span class="checkbox-placeholder"></span>
+                        </label>
+                     </div>
+                     {% if field.2 != 'BooleanField' %}
+                     <div class="col-sm-6 col-md-6 col-lg-6">
+                        {% if forloop.counter == 1 %}
+                            <div class="required-title-new required-title-new-right col-xs-12">Required</div></br></br>
+                        {% endif %}
+                         <label class="checkbox-inline checkbox-bootstrap checkbox-lg">
+                         <input type="checkbox" class="sub-check eventreq" value="{{ field.0 }}" name="required" id="required-{{field.0}}" {% if field.0 in event.companion_reqired_fields %} checked {% else %} {% if not event.companion_fields or field.0 not in event.companion_fields %} disabled {% endif %} {% endif %}>
+                         <span class="checkbox-placeholder"></span>
+                        </label>
+                     </div>
+                     {%endif%}
+                 </div>
+             </div>
+                 {% if field.2 != 'BooleanField' %}
+                         <script>
+                         $('#form-{{field.0}}').change( function() {
+                             $('#required-{{field.0}}').not(this).prop('checked', false);  
+                             $('#required-{{field.0}}').attr('disabled', !$(this).is(':checked'));
+                         });
+                         </script>
+                 {% endif %}
+             {%endfor%}
+             {% endif %}
+         </div>
+         
+        <!-- Option -->
+        {% if fields_personal %}
+        <div class="col-sm-5 col-md-5 col-lg-5 info-details">
+            <div class="info-heading">
+                <h4>OPTIONAL</h4>
+                <label class="checkbox-inline checkbox-bootstrap checkbox-lg">
+                <input type="checkbox" class="option">
+                <span class="checkbox-placeholder"></span>
+                Select all
+                </label>
+            </div>
+
+            {% for field in fields_personal %}
+            {% if 'name' != field.0 and 'surname' != field.0 and 'tax_number' != field.0 and 'company_name' != field.0%}
+            <div class="form-group info-content">
+                <div class="col-sm-7 col-md-7 col-lg-7">
+                    {% if forloop.counter == 3 %}
+                        </br></br>
+                    {% endif %}
+                    <label>{{ field.1|upper|upper }}</label>
+                </div>
+                <div class="col-sm-5 col-md-5 col-lg-5">
+                    <div class="col-sm-6 col-md-6 col-lg-6">
+                        {% if forloop.counter == 3 %}
+                            <div class="required-title-new required-title-new-right col-xs-12">Wanted</div></br></br>
+                        {% endif %}
+                       <label class="checkbox-inline checkbox-bootstrap checkbox-lg">
+                        <input type="checkbox" class="sub-check option-name" value="{{ field.0 }}" name="form" id="form-{{field.0}}" {% if field.0 in event.companion_fields %} checked {% endif %}>
+                        <span class="checkbox-placeholder"></span>
+                       </label>
+                    </div>
+                    {% if field.2 != 'BooleanField' %}
+                    <div class="col-sm-6 col-md-6 col-lg-6">
+                        {% if forloop.counter == 3 %}
+                            <div class="required-title-new required-title-new-right col-xs-12">Required</div></br></br>
+                        {% endif %}
+                        <label class="checkbox-inline checkbox-bootstrap checkbox-lg">
+                        <input type="checkbox" class="sub-check optionreq" value="{{ field.0 }}" name="required" id="required-{{field.0}}" {% if field.0 in event.companion_reqired_fields %} checked {% else %} {% if not event.companion_fields or field.0 not in event.companion_fields %} disabled {% endif %} {% endif %}>
+                        <span class="checkbox-placeholder"></span>
+                       </label>
+                    </div>
+                    {%endif%}
+                </div>
+            </div>
+                {% if field.2 != 'BooleanField' %}
+                        <script>
+                        $('#form-{{field.0}}').change( function() {
+                            $('#required-{{field.0}}').not(this).prop('checked', false);  
+                            $('#required-{{field.0}}').attr('disabled', !$(this).is(':checked'));
+                        });
+                        </script>
+                {% endif %}
+            {% endif %}
+            {%endfor%}
+            {% endif %}
+    </div>
+
+            <div class="col-sm-1 col-md-1 col-lg-1"></div>
+<!--            
+           <div class="col-sm-12 col-md-12 col-lg-12">
+        <label class="checkbox-inline checkbox-bootstrap checkbox-lg info-checkbox">
+            <input class="selectall" type="checkbox">
+                <span class="checkbox-placeholder"></span>
+                Select all above
+        </label>
+    </div> -->
+
+               {% if participant_form_error %}
+                    <p class="text-warning">
+                        Both Name and Surname should be required.
+                    </p>
+                {% endif %}
+
+               <div class="col-md-12">
+                        {% buttons %}
+                        {% if event.registration_step_finished == 7 %}
+                        <div class="col-sm-6 col-md-6 col-lg-6 text-right save-next-content pull-right">
+                                <div class="next-btn">
+                                    <button class="btn" type="submit" ><img src="{% static 'images/next-btn.png' %}" alt="next-btn"><span>SAVE</span></button>    
+                                </div>
+                            </div>
+                    </form>
+                    <div class="col-sm-2 col-md-2 col-lg-2 delete-content">
+                        <a href="#" class="btn" data-toggle="modal" data-target="#deleteModal"><img src="{% static 'images/delete.png' %}" alt="delete"><span>{% trans "DELETE" %}</span></a>
+                    </div>
+
+                              <!-- Modal -->
+                        <div class="modal fade" id="deleteModal" role="dialog">
+                          <div class="modal-dialog">
+                          
+                            <!-- Modal content-->
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                <h4 class="modal-title">Delete event</h4>
+                              </div>
+                              <div class="modal-body">
+                                <p>Are you sure you want to delete the event? All the lectures and payment methdos, bounded to the event
+                                  will be deleted as well.</p>
+                              </div>
+                              <div class="modal-footer">
+                                <a href="#" id="buttonDelete" name="{{event.subdomain}}" class="btn btn-default" data-dismiss="modal">Delete</a>
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                              </div>
+                            </div>
+                            
+                          </div>
+                        </div>
+                            <div class="col-sm-4 col-md-4 col-lg-4 save-back-content">
+                                <a href="{% url 'list_events' %}" class="btn"><img src="{% static 'images/download.png' %}" alt="download"><span>{% trans 'SAVE AND GO BACK TO THE EVENT LIST' %}</span></a>
+                            </div>
+                        <script> 
+                        $('#buttonDelete').on('click', function(e) {
+                          e.preventDefault();
+                          var name = $(this).data('name');
+                          $.ajax({
+                              url:  "{% url 'delete_event' event_name=event.subdomain %}",
+                              type: 'GET',
+                              success: function(html){
+                                parent.window.location="{% url 'list_events' %}";
+                              },
+                              error: function(){
+                                  alert("error");
+                              }  
+                          });  
+                      });
+                        $(document).ready(function(){
+                        $('.selectall').click(function(){
+                            if ($(this).is(':checked')){
+                                $(".sub-check").prop('checked', $(this).prop("checked"));
+                                //$('').attr('checked', true);
+                                $('.sub-check + span').addClass("required");
+                                $('.sub-check + span').prop("checked,false");
+                            } else {
+                                $(".sub-check").prop('checked',false);
+                                //$('.sub-check').attr('checked', false);
+                                $('.sub-check + span').removeClass("required");
+                            }
+                        });
+                        });
+                        </script>
+                        {% else %}
+                        <div class="col-sm-6 col-md-6 col-lg-6 text-right save-next-content pull-right">
+                                <div class="next-btn">
+                                    <button class="btn" type="submit" ><img src="{% static 'images/next-btn.png' %}" alt="next-btn"><span>SKIP OR GO TO NEXT STEP</span></button>    
+                                </div>
+                            </div>
+                    </form>
+                    <div class="col-sm-2 col-md-2 col-lg-2 delete-content">
+                        <a href="#" class="btn" data-toggle="modal" data-target="#deleteModal"><img src="{% static 'images/delete.png' %}" alt="delete"><span>{% trans "DELETE" %}</span></a>
+                    </div>
+
+                              <!-- Modal -->
+                        <div class="modal fade" id="deleteModal" role="dialog">
+                          <div class="modal-dialog">
+                          
+                            <!-- Modal content-->
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                <h4 class="modal-title">Delete event</h4>
+                              </div>
+                              <div class="modal-body">
+                                <p>Are you sure you want to delete the event? All the lectures and payment methdos, bounded to the event
+                                  will be deleted as well.</p>
+                              </div>
+                              <div class="modal-footer">
+                                <a href="#" id="buttonDelete" name="{{event.subdomain}}" class="btn btn-default" data-dismiss="modal">Delete</a>
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                              </div>
+                            </div>
+                            
+                          </div>
+                        </div>
+                            <div class="col-sm-4 col-md-4 col-lg-4 save-back-content">
+                                <a href="{% url 'list_events' %}" class="btn"><img src="{% static 'images/download.png' %}" alt="download"><span>{% trans 'SAVE AND GO BACK TO THE EVENT LIST' %}</span></a>
+                            </div>
+                        <script> 
+                        $('#buttonDelete').on('click', function(e) {
+                          e.preventDefault();
+                          var name = $(this).data('name');
+                          $.ajax({
+                              url:  "{% url 'delete_event' event_name=event.subdomain %}",
+                              type: 'GET',
+                              success: function(html){
+                                parent.window.location="{% url 'list_events' %}";
+                              },
+                              error: function(){
+                                  alert("error");
+                              }  
+                          });  
+                      });
+                        </script>
+
+                          {% endif %}  
+                        {% endbuttons %}
+                       
+                    </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</section>
+{%endblock%}

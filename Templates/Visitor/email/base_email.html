@@ -1,0 +1,13 @@
+{% extends "mail_templated/base.tpl" %}
+
+{% block subject %}
+Hello {{ user.name }}
+{% endblock %}
+
+{% block body %}
+{{ user.name }}, v upanju da boš čimprej plaču ti pošilamo položnco.
+{% endblock %}
+
+{% block html %}
+<strong>jurič prprav generičn template</strong>
+{% endblock %}

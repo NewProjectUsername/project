@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load bootstrap3 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+{% load i18n %}
+{% load tz %}
+
+{% block header %}
+<!--header-starts-->
+    <div class="header" id="header">
+        <div class="row">
+            <div class="header-top">
+                <a href="/"><img src="{% static 'images/logo.png' %}" alt="logo"></a>
+            </div>
+            <div class="header-bottom">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <ul class="nav nav-pills">
+                                {% if request.user.is_authenticated %}
+                                    <li><a href="/event/list/" id="myevent">MY EVENTS</a></li>
+                                    <li><a href="{% url 'add_event' %}">CREATE EVENT</a></li>
+                                    <li class="log-out"><a href="{% url 'logout' %}">{% trans 'LOG OUT' %}</a></li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+<!--header-ends-->
+
+{%endblock%}
+
+{% block content %}
+
+<nav class="navbar navbar-default">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <!--<a class="navbar-brand" href="#">IDConference</a>-->
+      <p class="navbar-text">
+      {% if request.user.is_authenticated %}
+      Hey, {{ request.user }}
+      {% else %}
+      Already have account?
+      {% endif %}
+      </p>
+    </div>
+
+  </div><!-- /.container-fluid -->
+</nav>
+
+<div class="row" style="padding-bottom: 2%;">
+  <div class="col-md-8">
+    <img src="{% if event.logo %} {{event.logo.url}} {% else %}'' {%endif%}" class="img-fluid col-md-12" />
+  </div>
+  <div class="col-md-4">
+    <h3>{{event.name}}</h3>
+    <br/>
+    <p><b>Start date: </b>{{event.start_time|timezone:event.timezone}}</p>
+    <p><b>End date: </b>{{event.end_time|timezone:event.timezone}}</p>
+    <p><b>Location: </b>{{event.location}}<p>
+    <p><b>Price: </b>{{event.price}}<p>
+  </div>
+</div>
+<a href="{% url 'participant_info' event_name=event.subdomain %}" class="btn btn-primary col-md-12">
+  {% if event_profile %}
+    {% trans "Edit registration" %}
+  {% else %}
+    {% trans "Register" %}
+  {% endif %}
+</a>
+
+<div class="row-fluid" style="padding: 2%;">
+  <br /><br />
+  <h3>Description of the event</h3>
+  <h5>{{event.first_step_info|safe}}</h5>  
+</div>
+
+{% endblock content %}

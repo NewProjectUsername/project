@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load bootstrap3 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+{% load i18n %}
+
+{% block content %}
+    {% if alert %}
+        <h2>{{ alert }}</h2>
+    {% else %}
+        <h2>{{ event_name }}</h2>
+        <form method="POST" action="{% url 'event_login' %}">
+            <div class="row row_pad">
+                {% csrf_token %}
+                {% bootstrap_form form %}
+                </div>
+                <div class="row row_pad">
+                {% buttons %}
+                    <button type="submit" class="btn btn-primary col-md-6">
+                           {% trans "Cancel" %}
+                    </button>
+                    <button type="submit" class="btn btn-primary col-md-6">
+                           {% trans "Next" %}
+                    </button>
+                {% endbuttons %}
+            </div>
+        </form>
+    {% endif %}
+{% endblock content %}

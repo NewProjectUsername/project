@@ -1,0 +1,240 @@
+{% extends "base.html" %} 
+{% load staticfiles %} 
+{% load bootstrap3 %} 
+{% bootstrap_css %}
+{% bootstrap_javascript %} 
+{% load i18n %} 
+{% load widget_tweaks %} 
+
+{% block head %} 
+{{block.super}}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.js"></script>
+{{ form.media }} 
+{% endblock %} 
+
+{%block header%}
+<div class="header">
+   <div class="row">
+      <div class="header-top">
+         <img src="{% static 'images/logo.png' %}" alt="logo">
+      </div>
+      <div class="header-bottom">
+         <div class="container">
+            <div class="row">
+               <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                  <ul class="nav nav-pills">
+                     <li class="active"><a href="{% url 'list_events' %}">MY EVENTS</a></li>
+                     <li><a href="{% url 'add_event' %}">CREATE EVENT</a></li>
+                  </ul>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
+{%endblock header%}
+<!--header-ends-->
+{% block content %}
+<!--section-starts-->
+<section class="my-events-content event-users-data event-data">
+   <div class="container">
+      <div class="row">
+         <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="pull-left col-xs-6 col-sm-6 col-md-6 col-lg-6 event-list">
+                        <h3>EVENT DATA</h3>
+                </div>
+                <div class="pull-right col-xs-6 col-sm-6 col-md-6 col-lg-6 event-list">
+                    <div class="input-group stylish-input-group">
+                    <input type="text" class="form-control" placeholder="Search" id="search">
+                    <span class="input-group-addon">
+                    <button type="submit">
+                    <span class="glyphicon glyphicon-search"></span>
+                    </button>
+                    </span>
+                    </div>
+                </div>
+            <div class="tab-pane fade in active event-data-content">
+                  <div id="home" class="col-xs-12 progress-table">
+                      <form method="post" action="{% url 'event_users_data' event_name=event.subdomain %}" id="deleteParticipants">
+                      {% csrf_token %}
+                     <table class="table height" >
+                        <thead>
+                           <tr>
+                              <!--<th><a href="#"><span class="glyphicon glyphicon-trash delete"></span></a></th>-->
+                              <th>
+                                <label class="checkbox-inline checkbox-bootstrap checkbox-lg">
+                                    <input class="sub-check" type="checkbox" id="checkAll">
+                                    <span class="checkbox-placeholder"></span>
+                                    </label>
+                              </th>
+                              <th>Participant</th>
+                              <th>All the data</th>
+                              <th>Date of registration</th>
+                              <th>Note</th>
+                              <th>Payment</th>
+                              <th></th>
+                           </tr>
+                        </thead>
+                        <tbody id="filteredlist">
+                           {% for participant in participants %} 
+                           {% if participant.payed and payed == 'payed' or payed == 'all'%}
+                           <tr>
+                              <td>
+                                 <label class="checkbox-inline checkbox-bootstrap checkbox-lg">
+                                 <input class="sub-check" type="checkbox" name="participant" id="id_participant" value="{{ participant.id }}">
+                                 <span class="checkbox-placeholder"></span>
+                                 </label>
+                              </td>
+                              <td>{{participant.name}}</td>
+                              <td>{{participant.post}}</td>
+                              <td>{{participant.date_of_registration}}</td>
+                              <td>{{participant.note}}</td>
+                              <td>{% if participant.payed %}Yes{%else%} No{%endif%}</td>
+                              <td> <a href="#" data-toggle="modal" data-target="#myModal" onclick="openPopup({{ participant.id }}, '{{ participant.payed }}', '{{ participant.name }}', '{{ participant.surname }}', '{{ participant.user.username}}', '{{ participant.upn_reference }}');"><i class="fa fa-pencil" aria-hidden="true"></i></a></td>
+                           </tr>
+                           {%elif not participant.payed and payed == 'not-payed'%} 
+                           <tr>
+                              <td>
+                                 <label class="checkbox-inline checkbox-bootstrap checkbox-lg">
+                                 <input class="sub-check" type="checkbox" name="participant" id="id_participant" value="{{ participant.id }}">
+                                 <span class="checkbox-placeholder"></span>
+                                 </label>
+                              </td>
+                              <td>{{participant.name}}</td>
+                              <td>{{participant.post}}</td>
+                              <td>{{participant.date_of_registration}}</td>
+                              <td>{{participant.note}}</td>
+                              <td>{% if participant.payed %}Yes{%else%} No{%endif%}</td>
+                              <td> <a href="#" data-toggle="modal" data-target="#myModal" onclick="openPopup({{ participant.id }}, '{{ participant.payed }}', '{{ participant.name }}', '{{ participant.surname }}', '{{ participant.user.username}}', '{{ participant.upn_reference }}');"><i class="fa fa-pencil" aria-hidden="true"></i></a></td>
+                           </tr>
+                           {%endif%} 
+                           {%endfor%}
+                        </tbody>
+                     </table>
+                      </form>
+                  </div>
+                  <div class="col-sm-12 col-xs-12 actions-event-progress col-md-12 col-lg-12 event-data-btn">
+                    <div class="col-xs-1 delete-selected-user save-excel text-center">
+                        <a href="#" class="btn" id="removeSelected">
+                            <span class="glyphicon glyphicon-trash delete"></span>
+                        </a>
+                    </div> 
+                    <div class="col-xs-2 pull-right save-excel">
+                        <a href="{% url 'download_event_users_data' event_name=event.subdomain payed=payed %}" class="btn" style="color:#333;">
+                        <img src="{% static 'images/download.png' %}" alt="download">
+                        <span>SAVE TO EXCEL</span>
+                        </a>
+                    </div>
+                    <div class="col-xs-2 pull-right col-sm-2 col-md-2 col-lg-2 import-uhd">
+                        <form method="POST" action="{% url 'event_users_data' event_name=event.subdomain %}" enctype="multipart/form-data" class="attachmentsUpload">
+                           {% csrf_token %} 
+                           {{ id_form.errors }} 
+                           {{ id_form }}
+                           <div class="uhd">
+                              <img src="{% static 'images/next-btn.png' %}" alt="next-btn"><span>IMPORT UHD IDs</span>
+                           </div>
+                        </form>
+                     </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+<!-- modal popup -->
+<div class="modal fade new-modal-ui" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+   <div class="modal-dialog" role="document">
+      <div class="modal-content">
+         <div class="modal-body">
+            <h4 class="modal-title" id="exampleModalLabel">{% trans 'Participant payment status' %}</h4>
+            <p id="modalUserInfo">Name Surname (Username)</p>
+            <p>{% trans 'PATMENT TYPE:' %} <span id="modalUPNInfo">122224</span></p>
+            {% if payed == 'payed' %}
+            <form method="POST" action="{% url 'change_visitor_payed_status' event_name=event.subdomain active_filter='payed'  %}">
+               {% elif payed == 'not-payed' %}
+            <form method="POST" action="{% url 'change_visitor_payed_status' event_name=event.subdomain active_filter='not-payed'  %}">
+               {% else %}
+            <form method="POST" action="{% url 'change_visitor_payed_status' event_name=event.subdomain active_filter='all'  %}">
+               {% endif %}
+               {% csrf_token %}
+               <div class="form-group">
+                  <div class="checkbox">
+                     <label class="checkbox-inline checkbox-bootstrap"><input class="sub-check" type="checkbox" value="xxx" id="paymentStatus" name="paymentStatus">
+                        <span class="checkbox-placeholder"></span>Payed
+                    </label>
+                  </div>
+                  <input type="hidden" name="user_id" value="0" id="id_userId">
+               </div>
+               <button type="button" class="btn btn-secondary" data-dismiss="modal">{% trans 'Close' %}</button>
+               <button type="submit" class="btn btn-primary">{% trans 'Save changes' %}</button>
+         </div>
+         </form>
+      </div>
+   </div>
+</div>
+</section>
+
+<script type="text/javascript">
+   $(".attachmentsUpload input").on("change", function() {
+       if ($(".attachmentsUpload input.file").val() == "") {
+           return;
+       }
+       $(".attachmentsUpload").submit();
+       $(".attachmentsUpload input.file").replaceWith('{{id_form}}');
+   });
+   
+   // $(document).ready(function() {
+   //     var rows = $('.table tr');
+   //     $('#search').keyup(function() {
+   //         var val = $.trim($(this).val()).replace(/ +/g, ' ').toLowerCase();
+   
+   //         rows.show().filter(function() {
+   //             var text = $(this).text().replace(/\s+/g, ' ').toLowerCase();
+   //             return !~text.indexOf(val);
+   //         }).hide();
+   //     });
+   // });
+   
+   
+   var $rows = $('#filteredlist tr');
+   $('#search').keyup(function() {
+   
+   var val = '^(?=.*\\b' + $.trim($(this).val()).split(/\s+/).join('\\b)(?=.*\\b') + ').*$',
+       reg = RegExp(val, 'i'),
+       text;
+   
+   $rows.show().filter(function() {
+       text = $(this).text().replace(/\s+/g, ' ');
+       return !reg.test(text);
+   }).hide();
+   });
+   
+   
+   function openPopup(userId, payedStatus, name, surname, username, upnRef) {
+   $('#modalUserInfo').html(name + ' ' + surname);// + ' ' + '(' + username + ')');
+   $('#modalUPNInfo').html(upnRef);
+   
+   $('input[name=user_id]').val(userId);
+   
+   
+   if (payedStatus == 'True') {
+       $('#paymentStatus').prop('checked', true);
+   } else {
+       $('#paymentStatus').prop('checked', false);
+   };
+   
+   };
+
+   $("#checkAll").on('click', function(){
+    $('input:checkbox').not(this).prop('checked', this.checked);
+   });
+
+   $('#removeSelected').click(function(){
+    var ok = confirm('{% trans "Are you sure that you want to remove selected participants from event?" %}');
+    if (ok) {
+        $('#deleteParticipants').submit();
+    } else {}
+   });
+</script>
+
+
+{% endblock content %}

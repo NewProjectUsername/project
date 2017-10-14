@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load bootstrap3 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+{% load i18n %}
+{% load widget_tweaks %}
+
+
+{% block head %}
+{{block.super}}
+<link href="{% static 'css/stylesheet.css' %}" rel="stylesheet" type="text/css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+{{ form.media }}
+{% endblock %}
+
+{%block header%}
+<div class="header">
+    <div class="row">
+        <div class="header-top">
+            <img src="{% static 'images/logo.png' %}" alt="logo">
+        </div>
+        <div class="header-bottom create-event-block">
+            <div class="container">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<!--section-starts-->
+<section>
+<div class="my-events-steps">
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 menu">
+                <ul class="nav nav-pills ">
+                <li role="presentation"><a href="{% url 'modify_event' event_name=event.subdomain %}"><span>STEP 1</span><span>Event details</span></a></li>
+                
+                <li role="presentation" class="active"><a href="{%url 'add_event_description' event_name=event.subdomain %}"><span>STEP 2</span><span>Event text</span></a></li>
+                
+                <li role="presentation" {% if event.registration_step_finished < 3 %} class="disabled" {% endif %}><a href={% if event.registration_step_finished > 2 %} "{%url 'add_event_participants' event_name=event.subdomain %}" {% else %} "#" {% endif %}><span>STEP 3</span><span>Participant info</span></a></li>
+                
+                <li role="presentation" {% if event.registration_step_finished < 4 %} class="disabled" {% endif %}><a href={% if event.registration_step_finished > 3 %} "{%url 'add_event_companion' event_name=event.subdomain %}" {% else %} "#" {% endif %} ><span>STEP 4</span><span>Companions</span></a></li>
+                
+                <li role="presentation" {% if event.registration_step_finished < 5 %} class="disabled" {% endif %}><a href={% if event.registration_step_finished > 4 %} "{%url 'add_event_lectures' event_name=event.subdomain %}" {% else %} "#" {% endif %}><span>STEP 5</span><span>Agenda</span></a></li>
+                
+                <li role="presentation" {% if event.registration_step_finished < 6 %} class="disabled" {% endif %}><a href={% if event.registration_step_finished > 5 %} "{%url 'add_event_payment' event_name=event.subdomain %}" {% else %} "#" {% endif %} ><span>STEP 6</span><span>Payment</span></a></li>
+
+                <li role="presentation" {% if event.registration_step_finished < 7 %} class="disabled" {% endif %}><a href={% if event.registration_step_finished > 6 %} "{%url 'card_designer' event_name=event.subdomain %}" {% else %} "#" {% endif %} ><span>STEP 7</span><span>Card designer</span></a></li>
+                </ul>
+                <div class="tab-content">
+                    <div id="home" class="tab-pane fade in active">
+                        <h3>STEP 2 Event  text</h3>
+                        
+          <form method="POST" action="{% url 'add_event_description' event_name=event.subdomain %}">
+     
+            <div class="row">
+                <div class="col-md-12">
+                    {% csrf_token %}
+                    {{ form.first_step_info}}
+                </div>
+            </div>
+            {% for error in form.first_step_info.errors %}
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="alert alert-danger" role="alert">
+                        {{ error|escape }}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            <div class="row">
+               {% buttons %}
+              {% if event.registration_step_finished < 7 %}
+                <div class="col-sm-6 col-md-6 col-lg-6 text-right save-next-content pull-right">
+                <div class="next-btn">
+                  <button type="submit" class="btn"><img src="{% static 'images/next-btn.png' %}" alt="next-btn"><span>{% trans "SAVE AND GO TO NEXT STEP" %}</span></button>
+                  </div>
+                  </div>  
+                </form>
+                <div class="col-sm-2 col-md-2 col-lg-2 delete-content" >
+                <a href="#" data-toggle="modal" data-target="#deleteModal" class="btn"><img src="{% static 'images/delete.png' %}" alt="delete"><span>DELETE</span></a>
+                </div>
+                      <!-- Modal -->
+                <div class="modal fade" id="deleteModal" role="dialog">
+                  <div class="modal-dialog">
+                  
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">Delete event</h4>
+                      </div>
+                      <div class="modal-body">
+                        <p>Are you sure you want to delete the event? All the lectures and payment methdos, bounded to the event
+                          will be deleted as well.</p>
+                      </div>
+                      <div class="modal-footer">
+                        <a href="#" id="buttonDelete" name="{{event.subdomain}}" class="btn btn-default" data-dismiss="modal">Delete</a>
+                        {% csrf_token %}
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                      </div>
+                    </div>
+                    
+                  </div>
+                </div>
+                <script> 
+                $('#buttonDelete').on('click', function(e) {
+                  e.preventDefault();
+                  var name = $(this).data('name');
+                  $.ajax({
+                      url:  "{% url 'delete_event' event_name=event.subdomain %}",
+                      type: 'GET',
+                      success: function(html){
+                          parent.window.location="{% url 'list_events' %}";
+                      },
+                      error: function(){
+                          alert("error");
+                      }  
+                  });  
+              });
+                </script>
+                <div class="col-sm-4 col-md-4 col-lg-4 save-back-content">
+                <a href="{% url 'list_events' %}"class="btn"><img src="{% static 'images/download.png' %}" alt="download"><span>{% trans "SAVE AND GO BACK TO THE EVENT LIST" %}</span></a>
+                </div>     
+                {% else %}
+                <div class="col-sm-6 col-md-6 col-lg-6 text-right save-next-content pull-right">
+                <div class="next-btn">
+                  <button type="submit" class="btn"><img src="{% static 'images/next-btn.png' %}" alt="next-btn"><span>{% trans "SAVE" %}</span></button>
+                  </div>
+              </div>  
+          </form>
+                <div class="col-sm-2 col-md-2 col-lg-2 delete-content" >
+                <a href="#" data-toggle="modal" data-target="#deleteModal" class="btn"><img src="{% static 'images/delete.png' %}" alt="delete"><span>DELETE</span></a>
+                </div>
+                      <!-- Modal -->
+                <div class="modal fade" id="deleteModal" role="dialog">
+                  <div class="modal-dialog">
+                  
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">Delete event</h4>
+                      </div>
+                      <div class="modal-body">
+                        <p>Are you sure you want to delete the event? All the lectures and payment methdos, bounded to the event
+                          will be deleted as well.</p>
+                      </div>
+                      <div class="modal-footer">
+                        <a href="#" id="buttonDelete" name="{{event.subdomain}}" class="btn btn-default" data-dismiss="modal">Delete</a>
+                        {% csrf_token %}
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                      </div>
+                    </div>
+                    
+                  </div>
+                </div>
+                <script> 
+                $('#buttonDelete').on('click', function(e) {
+                  e.preventDefault();
+                  var name = $(this).data('name');
+                  $.ajax({
+                      url:  "{% url 'delete_event' event_name=event.subdomain %}",
+                      type: 'GET',
+                      success: function(html){
+                          parent.window.location="{% url 'list_events' %}";
+                      },
+                      error: function(){
+                          alert("error");
+                      }  
+                  });  
+              });
+                </script>
+                <div class="col-sm-4 col-md-4 col-lg-4 save-back-content">
+                <a href="{% url 'list_events' %}"class="btn"><img src="{% static 'images/download.png' %}" alt="download"><span>{% trans "SAVE AND GO BACK TO THE EVENT LIST" %}</span></a>
+                </div>  
+
+               
+                  {% endif %}  
+                {% endbuttons %}
+               
+
+ 
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+</div>
+</section>
+{% endblock content %}
+

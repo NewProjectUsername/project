@@ -1,0 +1,313 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load bootstrap3 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+{% load i18n %}
+{% load field_by_key %}
+
+
+{% block content %}
+
+<h1 class="page-header">
+    {{ event.name }}
+    <small>
+        {% trans 'Event registration' %}
+    </small>
+</h1>
+
+<div class="row" style="padding-bottom: 2%;">
+	<img src="http://placehold.it/700x150?text={{ event.name }}" class="img-fluid col-md-12" />
+</div>
+
+<div class="row" style="padding: 20px;" class="center">
+    <div class="col-md-12">
+        <ul class="nav nav-tabs">
+            <li role="presentation"><a href="{% url 'participant_info' event_name=event.subdomain %}">{% trans 'Step 1 - Participant information' %}</a></li>
+            {% if event.companion_fields %}
+            <li role="presentation"><a href= "{% url 'companion_info' event_name=event.subdomain %}">{% trans 'Step 2 - Companion information' %}</a></li>
+            <li role="presentation" {% if event_profile == None or event_profile.registration_step_finished < 3 %} class="disabled" {% endif %}><a href= {% if event_profile != None and event_profile.registration_step_finished > 2 %} "{% url 'events_selector_visitor' event_name=event.subdomain %}" {% else %} "#" {% endif %}>{% trans 'Step 3 - Participation selector' %}</a></li>
+           <li role="presentation" {% if event_profile.registration_step_finished < 4 %} class="disabled" {% endif %}><a href="{% url 'payment' event_name=event.subdomain %}">{% trans 'Step 4 - Payment' %}</a></li>
+            {% else %}
+            <li role="presentation" class="active"><a href= "{% url 'events_selector_visitor' event_name=event.subdomain %}">{% trans 'Step 2 - Participation selector' %}</a></li>
+            <li role="presentation" {% if event_profile.registration_step_finished < 4 %} class="disabled" {% endif %}><a href="{% url 'payment' event_name=event.subdomain %}">{% trans 'Step 3 - Payment' %}</a></li>
+            {% endif %}
+        </ul>
+    </div>
+</div>  
+<div class="row" id="formDiv" style="padding: 20px;">
+
+    <h2>{% trans 'Please select the lectures and events that you would like to participate in' %}</h2>
+    <button class="btn btn-primary col-md-2 active" id="showByDay">Show by day</button>
+    <button class="btn btn-primary col-md-2" id="showByTrack">Show by track</button>
+    <br><br>
+    <form method="POST" action="{% url 'events_selector_visitor' event_name=event.subdomain %}" id="lecturesDays">
+    <div class="row">
+        <input type="hidden" value="0" name="payPerDay" id="hiddenPayPerDay">
+        <input type="hidden" value="0" name="payPerTrack" id="hiddenPayPerTrack">
+        {% for key, values in groupsDays.items %}
+            {% csrf_token %}
+            <div class="col-md-{{col_width}}">
+                <input type="checkbox" value="{{key|date:"Y-m-d"}}" 
+                id="day{{forloop.counter}}" name="dayCheckbox[]"/><h4>{% trans 'Day' %} {{ forloop.counter }}</h4>
+
+                {% for v in values %}
+                    <h5>
+                        <input type="hidden" id="trackOfLecture{{v.id}}" value="{{ v.track }}">
+                        <input type="checkbox" name="lectures[]" value="{{v.id}}" {% if v.id in selected_lectures %} checked {% endif %}>
+                        {{ v.name }}
+                    </h5>
+                    <h6>{% trans 'Start time' %}: {{ v.start_time }}</h6>
+                    <h6>{% trans 'End time' %}: {{ v.end_time }}</h6>
+                    <h6>{% trans 'Track' %}: {{ v.track }}</h6>
+                {% endfor %} 
+            </div>    
+        {% endfor %}  
+    </div><!-- end row -->    
+
+<div class="row" style="padding: 20px;">
+<div class="row">
+{% buttons %}
+    <a href="{% url 'home' %}" class="btn btn-primary col-md-2 col-md-offset-2">
+            {% trans "Cancel" %}
+    </a>
+
+    <button type="submit" id="save" class="btn btn-primary col-md-2">
+        {% trans 'Save' %}
+    </button>
+{% endbuttons %}
+</div>
+</div>
+</form> <!-- end form -->
+
+<form method="POST" action="{% url 'events_selector_visitor' event_name=event.subdomain %}" id="lecturesTracks" style="display:none">
+    <div class="row">
+        <input type="hidden" value="0" name="payPerDay" id="hiddenPayPerDay">
+        <input type="hidden" value="0" name="payPerTrack" id="hiddenPayPerTrack">
+        {% for key2, values2 in groupsTracks.items %}
+            {% csrf_token %}
+            <div class="col-md-{{col_width}}">
+                <input type="checkbox" value="{{key2}}" 
+                id="track{{forloop.counter}}" name="trackCheckbox[]"/><h4>{% trans 'Track' %} {{ forloop.counter }}</h4>
+
+                {% for v in values2 %}
+                    <h5>
+                        <input type="hidden" id="trackOfLecture{{v.id}}" value="{{ v.track }}">
+                        <input type="checkbox" name="lectures[]" value="{{v.id}}" >
+                        {{ v.name }}
+                    </h5>
+                    <h6>{% trans 'Start time' %}: {{ v.start_time }}</h6>
+                    <h6>{% trans 'End time' %}: {{ v.end_time }}</h6>
+                    <h6>{% trans 'Track' %}: {{ v.track }}</h6>
+                {% endfor %} 
+            </div>    
+        {% endfor %} 
+    </div><!-- row -->       
+
+<div class="row" style="padding: 20px;">
+<div class="row">
+{% buttons %}
+    <a href="{% url 'home' %}" class="btn btn-primary col-md-2 col-md-offset-2">
+            {% trans "Cancel" %}
+    </a>
+    <button type="submit" id="save" class="btn btn-primary col-md-2">
+        {% trans 'Save' %}
+    </button>
+{% endbuttons %}
+</div>
+</div>
+</form> <!-- end form -->
+<h3>Price (pay by day): <span id="sumPriceDay">0</span></h3>
+<h3>Price (pay by track): <span id="sumPriceTrack">0</span></h3>
+
+</div><!-- end row formDiv -->
+
+<script>
+$(document).ready(function(){
+
+
+    $( "#showByTrack" ).click(function() {
+        $("#lecturesDays").css('display', 'none');
+        $("#lecturesTracks").css('display', 'block');
+        $(this).addClass('active');
+        $("#lecturesDays").removeClass('active');  
+        getSelected('days');   
+    });
+
+    $( "#showByDay" ).click(function() { 
+        $("#lecturesDays").css('display', 'block');
+        $("#lecturesTracks").css('display', 'none');
+        $(this).addClass('active');
+        $("#lecturesTracks").removeClass('active'); 
+        getSelected('tracks');
+    });
+
+    function getSelected(type){
+        //first number of array are checked boxes, second are unchecked
+        var checked = [];
+        var all = [];
+        if (type=='days'){
+            $("#lecturesDays input[name='lectures[]']:checked").each(function() {
+                //populating with selected checkboxes
+                var value = $(this).attr('value');
+                if ($.inArray(value, checked) == -1){
+                    checked.push(value);
+                }
+            });
+            //first uncheck all
+            $("#lecturesTracks input[name='lectures[]']").each(function() {
+                var value = $(this).attr('value');
+                var checkBoxToCheck = "#lecturesTracks input[name='lectures[]'][value=" + value + "]";
+                $(checkBoxToCheck).prop('checked', false);
+            });
+            //check only checked
+            $.each(checked, function (index, value) {
+                var checkBoxToCheck = "#lecturesTracks input[name='lectures[]'][value=" + value + "]";
+                $(checkBoxToCheck).prop('checked', true);
+            });
+        }
+        else if (type=='tracks'){
+            $("#lecturesTracks input[name='lectures[]']:checked").each(function() {
+                //populating with selected checkboxes
+                var value = $(this).attr('value');
+                if ($.inArray(value, checked) == -1){
+                    checked.push(value);
+                }
+            });
+            //first uncheck all
+            $("#lecturesDays input[name='lectures[]']").each(function() {
+                var value = $(this).attr('value');
+                var checkBoxToCheck = "#lecturesDays input[name='lectures[]'][value=" + value + "]";
+                $(checkBoxToCheck).prop('checked', false);
+            });
+            //check only checked
+            $.each(checked, function (index, value) {
+                var checkBoxToCheck = "#lecturesDays input[name='lectures[]'][value=" + value + "]";
+                $(checkBoxToCheck).prop('checked', true);
+            });
+        }
+        console.log(checked);
+        calculate();
+    }
+    
+    tracksAndLectures = {{tracksAndLectures | safe}};
+    lecturesDays = {{lecturesDays | safe}};
+    numLecturesPerDay = {{lecturesPerDay | safe}};
+    payable_tracks = {{payable_tracks | safe}}
+    tickets = {{tickets | safe}}
+    lectures = {{groupsJson | safe}}
+    lecturesTracks = {{groupsTracksJson | safe}}
+    //all the lectures grouped by day
+    calculate();
+
+    //we do not allow user to save without at least on selected event
+     //when save is clicked, we want to see if anything was selected
+    $("#save").on("click", function(){
+        calculate(1);
+    });
+
+    function calculate(is_save){
+        //selected checkboxes
+        var selected = [];
+        //selected track
+        var selectedTracks = [];
+        //if whole day is selected
+        var selectedDays = [];
+        //selected lectures grouped by day - needed for the "whole day checkbox"
+        var grouped = {};
+        var id = $(this).attr('value');
+
+        //for the selection of a whole day
+        $("input[name='dayCheckbox[]']:checked").each( function () {
+            var valueDay = $(this).attr('value');
+            selectedDays.push(valueDay);
+            $.each(lectures[valueDay], function (index, value) {
+                var checkBoxToCheck = "input[name='lectures[]'][value=" + value + "]";
+                $(checkBoxToCheck).prop('checked', true);
+            });    
+        });
+
+        //for the selection of a whole track
+        $("input[name='trackCheckbox[]']:checked").each( function () {
+            var valueTrack = $(this).attr('value');
+            selectedTracks.push(valueTrack);
+            $.each(lecturesTracks[valueTrack], function (index, value) {
+                var checkBoxToCheck = "input[name='lectures[]'][value=" + value + "]";
+                $(checkBoxToCheck).prop('checked', true);
+            });    
+        });
+
+        console.log(selected);
+
+        //for the selection of individual checkbox
+        $("input[name='lectures[]']:checked").each(function() {
+            //populating with selected checkboxes
+            var value = $(this).attr('value');
+            if ($.inArray(value, selected) == -1){
+                selected.push(value);
+            }
+        });
+
+
+        console.log(selected);
+        var selectedDays = [];
+        var temp = [];
+        for (index = 0; index < selected.length; ++index) {
+            var key = selected[index];
+                for(var r=0; r<lecturesDays[key].length;r++){
+                    if ($.inArray(lecturesDays[key][r], selectedDays) == -1){
+                        selectedDays.push(lecturesDays[key][r]);
+                    }    
+                }             
+            grouped[lecturesDays[key]]+=1;             
+        }
+
+        //if all the lectures from one day are selected we select "the whole"
+        //day checkbox as well
+        var numDays = selectedDays.length;
+        if (tickets[numDays] != undefined) {
+            $("#sumPriceDay").text(tickets[numDays]);
+            $("#hiddenPayPerDay").val(tickets[numDays]);  
+        }
+        else {
+            $("#hiddenPayPerDay").val("0"); 
+            $("#sumPriceDay").text("0"); 
+        }
+        
+
+        var track = $("#trackOfLecture" + id).attr('value');
+
+        selected.forEach(function(id) {
+            track = $("#trackOfLecture" + id).attr('value');
+            if (track !== "None" && (selectedTracks.includes(track) === false))  {
+                selectedTracks.push(track);
+            }
+        });
+
+        var sumTracks = 0;
+        for (counter=0; counter<selectedTracks.length;++counter){
+            if (payable_tracks[selectedTracks[counter]]){
+                sumTracks = sumTracks + payable_tracks[selectedTracks[counter]];
+            }      
+        }
+        $("#sumPriceTrack").text(sumTracks);
+        $("#hiddenPayPerTrack").val(sumTracks); 
+
+        //if user did not select any checkboxes he can not save
+        if (is_save == 1) {
+            if (selected.length == 0){
+                alert('You need to select at least on event');
+                event.preventDefault();
+            }
+        }
+    }
+
+    //when any checkbox is clicked, we recalculate
+    $(":checkbox").on("click", function(){
+        calculate();
+    });
+
+ });
+</script>
+
+{% endblock content %}

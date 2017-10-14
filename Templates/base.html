@@ -1,0 +1,209 @@
+{% load bootstrap3 %}
+{% load staticfiles %}
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+
+        <title>IDConference_Login</title>
+        <!--<script type="text/javascript" src="{% bootstrap_jquery_url %}"></script>-->
+
+        <!--<script
+        src="https://code.jquery.com/jquery-2.2.4.min.js"
+        integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="
+        crossorigin="anonymous"></script>-->
+
+        <script type="text/javascript" src="{% bootstrap_jquery_url %}"></script>
+
+        <script type="text/javascript" src="{% static 'moment-with-locales.min.js' %}"></script>
+
+        {% bootstrap_javascript %}
+
+        <script type="text/javascript" src="{% static 'bootstrap-datetimepicker.min.js' %}"></script>
+
+        <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+        
+        <!--
+        <script src="{% static "jquery.hotkeys.js"%}"></script>
+        <script src="{% static "bootstrap-wysiwyg.js"%}"></script>
+         <script src="//cdn.jsdelivr.net/interact.js/1.2.6/interact.min.js"></script>
+        -->
+        {% block  head %}
+        <link href="{% static 'css/stylesheet.css' %}" rel="stylesheet" type="text/css">
+        {% endblock %}
+        {% bootstrap_css %}
+      
+        
+        <link href="{% static 'css/font-awesome.css' %}" rel="stylesheet">
+        <link href="{% static 'bootstrap-datetimepicker.min.css' %}" rel="stylesheet">
+        <!--<link href="//netdna.bootstrapcdn.com/font-awesome/3.0.2/css/font-awesome.css" rel="stylesheet">-->
+    
+        <style media="screen" type="text/css">
+           #canvas {
+              width: 445px;
+              height:255px;
+              background-color: #000;
+              color: #000;
+              font-size: 1.2em;
+              border-radius: 4px;
+              padding: 2%;
+            }
+            #data {
+              width: 250px;
+              height: 100px;
+              background-color: #29e;
+              color: #fff;
+              font-size: 1.2em;
+              border-radius: 4px;
+            }
+            #code {
+              width:250px;
+              height:50px;
+              background-color: #20e;
+              color: #fff;
+              font-size: 1.2em;
+              border-radius: 4px;
+            }
+
+        </style>
+
+
+        <title>IDE</title>
+
+        <style>
+
+             #sortable{ list-style-type: none; margin: 0; padding: 0; width: 300px; height:200px; }
+            #sortable ul{ list-style-type: none; margin: 0; padding: 0; width: 300px; height:200px; }
+            #sortable li { margin: 0 5px 5px 5px; padding: 5px; font-size: 1.2em; height: 60px; width: 290px;}
+            html>body #sortable li { height: 60px; line-height: 1.2em; }
+            .ui-state-highlight { height: 1.5em; line-height: 1.2em; }
+            
+            #sortable2Div { margin: 0; padding: 0; width: 80px; height:200px; }
+            #sortable2 { list-style-type: none; margin: 0; padding: 0; width: 180px; height:200px; }
+            #sortable2 li { margin: 0 5px 5px 0px; padding: 5px; font-size: 1.2em; height: 90px; width: 180px;}
+            html>body #sortable2 li { height: 90px; line-height: 1.2em; }
+            #barcode2 { width: 80px; height:190px; float:left;}
+
+            #sortable3Div { margin: 0; padding: 0; width: 80px; height:200px; }
+            #sortable3 { list-style-type: none; margin: 0; padding: 0; width: 180px; height:200px; }
+            #sortable3 li { margin: 0 5px 5px 5px;  font-size: 1.2em; height: 90px; width: 180px;}
+            html>body #sortable3 li { height: 90px; line-height: 1.2em; }
+            #barcode3 { width: 80px; height:190px; float:left;}
+
+            #sortable4 { list-style-type: none; margin: 0; padding: 0; width: 250px; height:400px; }
+            #sortable4 li { margin: 0 5px 5px 5px;  font-size: 1.2em; height: 125px; width: 240px;}
+            html>body #sortable4 li { height: 125px; line-height: 1.2em; }
+
+            #companyInfoText1 {
+              white-space: pre-wrap;
+            }
+            #personalInfoText1 {
+              white-space: pre-wrap;
+            } 
+
+            
+            #sortableL{ list-style-type: none; margin: 0; padding: 0; width: 600px; height:200px; }
+            #sortableL ul{ list-style-type: none; margin: 0; padding: 0; width: 600px; height:200px; }
+            #sortableL li { margin: 0 5px 5px 5px; padding: 5px; font-size: 1.2em; height: 130px; width: 590px;}
+            html>body #sortableL li { height: 130px; line-height: 1.2em; }
+            .ui-state-highlight { height: 1.5em; line-height: 1.2em; }
+        
+            #sortable2DivL { margin: 0; padding: 0; width: 80px; height:377px; }
+            #sortable2L { list-style-type: none; margin: 0; padding: 0; width: 490px; height:377px; }
+            #sortable2L li { margin: 0 5px 5px 0px; padding: 5px; font-size: 1.2em; height: 185px; width: 480px;}
+            html>body #sortable2L li { height: 185px; line-height: 1.2em; }
+            #barcode2L { width: 80px; height:190px; float:left;}
+
+            #sortable3DivL { margin: 0; padding: 0; width: 80px; height:200px; }
+            #sortable3L { list-style-type: none; margin: 0; padding: 0; width: 485px; height:200px; }
+            #sortable3L li { margin: 0 5px 5px 5px;  font-size: 1.2em; height: 185px; width: 480px;}
+            html>body #sortable3L li { height: 185px; line-height: 1.2em; }
+            #barcode3L { width: 80px; height:190px; float:left;}
+
+            #sortable4L { list-style-type: none; margin: 0; padding: 0; width: 250px; height:400px; }
+            #sortable4L li { margin: 0 5px 5px 5px;  font-size: 1.2em; height: 125px; width: 240px;}
+            html>body #sortable4L li { height: 125px; line-height: 1.2em; }
+
+            #companyInfoText1L {
+              white-space: pre-wrap;
+            }
+            #personalInfoText1L {
+              white-space: pre-wrap;
+            }
+        </style>
+ 
+        <!-- <link href="//netdna.bootstrapcdn.com/font-awesome/3.0.2/css/font-awesome.css" rel="stylesheet"> -->
+     
+    </head>
+
+    <body>
+        <!--wrapper-starts-->
+    <div id="wrapper"> 
+        <div class="Container">
+            <!--header-starts-->
+            {% block header %}
+                <div class="header">
+                    <div class="row">
+                        <div class="header-top">
+                            <img src="{% static 'images/logo.png' %}" alt="logo">
+                        </div>
+                            <div class="header-bottom">{% block div %}{% endblock %}</div>
+                    </div>
+                    
+                </div>
+             {%endblock%}
+        </div>
+        <!--footer-start-->
+        {% block content %}{% endblock %}
+  <footer>
+    <div class="container">
+      <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <ul class="col-xs-6 col-sm-3 col-md-3 col-lg-3">
+                <li><h3>ABOUT</h3></li>
+                <li>ID.Conference d.o.o.</li>
+                <li>Koprska 98, 1000 Ljubljana</li>
+                <li>E: info@idconference.eu</li>
+            </ul>
+            <ul class="col-xs-6 col-sm-3 col-md-3 col-lg-3">
+                <li><h3>SUPPORT</h3></li>
+                <li><a href="">Faq</a></li>
+                <li><a href="">Technical Support</a></li>
+                <li><a href="">Organizing tips</a></li>
+            </ul>
+            <div class="clearfix visible-xs"></div>
+            <ul class="col-xs-6 col-sm-3 col-md-3 col-lg-3">
+                <li><h3>TERMS</h3></li>
+                <li><a href="">Terms & Conditions</a></li>
+                <li><a href="">Cookies</a></li>
+                <li></li>
+            </ul>
+            <ul class="col-xs-6 col-sm-3 col-md-3 col-lg-3 follow-us">
+                <li><h3>FOLLOW US</h3></li>
+                <li><a href="https://www.facebook.com" target="_blank"><img src="{% static 'images/facebook.png' %}" alt="facebook"></a></li>
+                <li><a href="https://www.twitter.com" target="_blank"><img src="{% static 'images/twitter.png' %}" alt="twitter"></a></li>
+                <li><a href="https://www.instagram.com" target="_blank"><img src="{% static 'images/instagram.png' %}" alt="instagram"></a></li>
+                <li><a href="https://www.youtube.com" target="_blank"><img src="{% static 'images/youtube.png' %}" alt="youtube"></a></li>
+            </ul>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <!--footer-end--> 
+  </div>
+<!--wrapper-end-->
+<!-- <script src="{% static 'js/bootstrap.min.js' %}"></script> -->
+<!-- <script type="text/javascript" src="{% static 'js/bootstrap-datetimeicker.min.js' %}"></script> -->
+{% block end_script %}
+        {% endblock %}
+
+
+</body>
+
+</html>

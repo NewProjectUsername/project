@@ -1,0 +1,215 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load i18n %}
+{% load tz %}
+
+{% block  head %}
+<link href="{% static 'css/stylesheet.css' %}" rel="stylesheet" type="text/css">
+{%endblock%}
+
+{% block header %}
+<!--header-starts-->
+    <div class="header" id="header">
+        <div class="row">
+            <div class="header-top">
+                <a href="/"><img src="{% static 'images/logo.png' %}" alt="logo"></a>
+            </div>
+            <div class="header-bottom">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <ul class="nav nav-pills">
+                                {% if request.user.is_authenticated %}
+                                    <li><a href="#" onclick="show('all');" id="myevent">MY EVENTS</a></li>
+                                    <li><a href="{% url 'add_event' %}">CREATE EVENT</a></li>
+                                    <li class="log-out"><a href="{% url 'logout' %}">{% trans 'LOG OUT' %}</a></li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+<!--header-ends-->
+
+{%endblock%}
+
+
+{% block content %}
+
+
+<!-- use as {{spaces}} tag -->
+{% cycle ' ' ' ' as spaces%}
+
+<!--section-starts-->
+<section class="my-events-content new-events">
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="tab-content">
+                    <div id="home" class="tab-pane fade in active">
+                        <h3>MY EVENTS</h3>
+                        <!-- if there are no current events create event -->
+                        {% if not events %}
+                        <div class="col-sm-6 col-md-6 col-lg-6 event-content">
+                            <p class="no-event">There is no events in your Event list</p>
+                        </div>
+                        <div class="col-sm-6 col-md-6 col-lg-6 event-list">
+                            <a href="#" onclick="show('all')" id="listall">ALL</a>
+                            <a href="#" onclick="show('progress')" id="progress">IN PROGRESS</a>
+                        </div>
+                        <div class="col-sm-12 col-md-12 col-lg-12">
+                            <a href="{% url 'add_event' %}" class="plus-icon">
+                                <span class="glyphicon glyphicon-plus"></span>
+                                CREATE NEW EVENT
+                            </a>
+                        </div>
+                        {% endif %}
+                        <!-- if there are events call in progress or show all -->
+                        {% if events %}
+                        <div class="col-sm-6 col-md-6 col-lg-6 event-content">
+                            <p id="title">Here you can edit, manage and view your events!</p>
+                        </div>
+                        <div class="col-sm-6 col-md-6 col-lg-6 event-list">
+                            <a href="#" onclick="show('all')" id="listall">ALL</a>
+                            <a href="#" onclick="show('progress')" id="progress">IN PROGRESS</a>
+                        </div>
+                        <br/>
+                    </div>
+
+                    <div id="menu1" class="tab-pane fade">
+                        <h3>CREATE EVENTS</h3>
+                        <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
+                            commodo consequat.</p>
+                        <h2 id="title">Here you can edit, manage and view your events!</h2>
+                    </div>
+                </div>
+            </div>
+            <!-- col-sm-12 col-md-12 col-lg-12 -->
+            <div class="gallery-content" id="all" style="display:none">
+                {% for event in events %}
+                <div class="col-xs-12 col-sm-6 col-md-4 col-lg-4 event-box">
+                    <div class="event-gallery">
+                        <!-- {% if event.registration_step_finished > 0 and event.registration_step_finished < 7 %}
+                        <h4>{% trans 'event registration not finished' %}</h4>
+                        {% elif event.registration_step_finished == 7 %}
+                        <h4>{% trans 'event registered' %}</h4>
+                        {% else %}
+                        <h4>{% trans 'not registered' %}</h4>
+                        {%endif%} -->
+                         <!-- check whether event logo is present or not -->
+                        <a href="{% url 'event_info' event_name=event.subdomain %}">
+                            <img src="{% if event.logo %} {{event.logo.url}} {% else %}/static/images/event_default_photo.png{%endif%}" alt="smk">
+                        </a>
+                        <div class="col-sm-7 col-md-7 col-lg-7">
+                            <span>{{ event.name }}</span>
+                        </div>
+                        <div class="col-sm-5 col-md-5 col-lg-5 edit-content">
+                            <a href="{% url 'modify_event' event_name=event.subdomain %}"><i class="fa fa-pencil" aria-hidden="true"></i></a>
+                            <a href="{% url 'event_users_data' event_name=event.subdomain %}"><i class="fa fa-search" aria-hidden="true"></i></a>
+                        </div>
+                        <div class="col-xs-11 col-sm-11 col-md-11 col-lg-11">
+                            <div class="form-group">
+                                <div class="input-group date" id="datetimepicker1">
+                                    <!-- basic django template datetime manipulation used cycle to provide -->
+                                    {% if event.start_time|date:"m d" == event.end_time|date:"m d" %}
+                                    <!-- check if months and day are same -->
+                                    <i class="fa fa-calendar" aria-hidden="false"><span class="date_event">{{ event.start_time|timezone:event.timezone|date:'M d, h:i A'}}{{ spaces }}-{{ spaces }}{{ event.end_time|timezone:event.timezone|date:'h:i A' }}</span></i>
+                                    {% else %}
+                                    <!-- use two diffrent months -->
+                                    <i class="fa fa-calendar" aria-hidden="false"><span class="date_event">{{ event.start_time|timezone:event.timezone|date:'M d, h:i A'}}{{ spaces }}-{{ spaces }}{{ event.end_time|timezone:event.timezone|date:'M d, h:i A'}}</span></i>
+                                    {%endif%}
+                                </div>
+                            </div>
+                        </div>
+                        <!-- eye icon will not show in all events -->
+                        {% if event.name in pevent_name %}
+                        <div class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
+                            <a href="{% url 'event_progress_users_data' event_name=event.subdomain %}" class="view-content"><i class="fa fa-eye" aria-hidden="false"></i></a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div id="inProgress" class="row" style="display:none">
+                {% for event in events_in_progress %}
+                <div class="col-sm-4 col-md-4 col-lg-4">
+                    {{event_in_progress}}
+                    <div class="event-gallery">
+                        <!-- check if event logo is present or not -->
+                        <a href="{% url 'event_info' event_name=event.subdomain %}"><img src="{% if event.logo %} {{event.logo.url}} {% else %}/static/images/event_default_photo.png{%endif%}" alt="smk"></a>
+                        <div class="col-sm-7 col-md-7 col-lg-7">
+                            <span>{{ event.name }}</span>
+                        </div>
+                        <div class="col-sm-5 col-md-5 col-lg-5 edit-content">
+                            <a href="{% url 'modify_event' event_name=event.subdomain %}"><i class="fa fa-pencil" aria-hidden="true"></i></a>
+                            <a href="{% url 'event_users_data' event_name=event.subdomain %}"><i class="fa fa-search" aria-hidden="true"></i></a>
+                        </div>
+                        <div class="col-sm-10 col-md-10">
+                            <div class="form-group">
+                                <div class="input-group date" id="datetimepicker1">
+                                    <!-- basic django template datetime manipulation used cycle to provide -->
+                                    {% if event.start_time|date:"m d" == event.end_time|date:"m d" %}
+                                    <!-- no need to show two diffrent months -->
+                                    <i class="fa fa-calendar" aria-hidden="false"><span class="date_event">{{ event.start_time|timezone:event.timezone|date:'M d, h:i A'}}{{ spaces }}-{{ spaces }}{{ event.end_time|timezone:event.timezone|date:'h:i A' }}</span></i>
+                                    {% else %}
+                                    <!-- use two diffrent months -->
+                                    <i class="fa fa-calendar" aria-hidden="false"><span class="date_event">{{ event.start_time|timezone:event.timezone|date:'M d, h:i A'}}{{ spaces }}-{{ spaces }}{{ event.end_time|timezone:event.timezone|date:'M d, h:i A'}}</span></i>
+
+                                    {%endif%}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-2 col-md-2">
+                            <a href="{% url 'event_progress_users_data' event_name=event.subdomain %}" class="view-content"><i class="fa fa-eye" aria-hidden="false"></i></a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <!-- row ends -->
+    <!-- container ends -->
+
+
+    {% endif%}
+</section>
+<!--section-end-->
+{% block end_script %}
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.js"></script>
+{% endblock %}
+<script>
+    function show(divId) {
+        if (divId === "all") {
+            document.getElementById("listall").style.color = "#ec008c";
+            document.getElementById("progress").style.color = "#353535";
+            document.getElementById("inProgress").style.display = "none";
+            document.getElementById("all").style.display = "block";
+            document.getElementById("title").innerHTML = "Here you can edit, manage and view your events!";
+        }
+        else {
+            document.getElementById("progress").style.color = "#ec008c";
+            document.getElementById("listall").style.color = "#353535";
+            document.getElementById("inProgress").style.display = "block";
+            document.getElementById("all").style.display = "none";
+            document.getElementById("title").innerHTML = "Here you can edit, manage and track your events in progress!";
+        }
+    }
+    //change color of events header
+    // function changecolor(){
+    //   document.getElementById("myevent").style.color = "#ec008c";
+    // }
+    // Shows The all events by calling show event function on document ready.
+    $(window).ready(function () {
+        $('#myevent').css({'color': '#ec008c'});
+        show("all");
+
+    });
+</script>
+
+
+{% endblock content %}

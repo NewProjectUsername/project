@@ -1,0 +1,1002 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load bootstrap3 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+{% load i18n %}
+{% load widget_tweaks %}
+
+{% block head %}
+{{block.super}}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+{{ form.media }}
+{% endblock %}
+
+{%block header%}
+<div class="header">
+    <div class="row">
+        <div class="header-top">
+            <img src="{% static 'images/logo.png' %}" alt="logo">
+        </div>
+        <div class="header-bottom create-event-block">
+            <div class="container">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block content %}
+<section section class="my-events-steps lectures payment-content">
+<div class="my-events-steps">
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 menu">
+                <ul class="nav nav-pills ">
+                    <li role="presentation"><a href="{% url 'modify_event' event_name=event.subdomain %}"><span>STEP 1</span><span>Event details</span></a></li>
+                
+                <li role="presentation"><a href="{%url 'add_event_description' event_name=event.subdomain %}"><span>STEP 2</span><span>Event text</span></a></li>
+
+                 <li role="presentation"><a href="{%url 'add_event_participants' event_name=event.subdomain %}"><span>STEP 3</span><span>Participant info</span></a></li>
+                
+                <li role="presentation"> <a href="{%url 'add_event_companion' event_name=event.subdomain %}"><span>STEP 4</span><span>Companions</span></a></li>
+                
+                <li role="presentation" ><a href="{%url 'add_event_lectures' event_name=event.subdomain %}"><span>STEP 5</span><span>Agenda</span></a></li>
+                
+                <li role="presentation"><a href="{%url 'add_event_payment' event_name=event.subdomain %}"><span>STEP 6</span><span>Payment</span></a></li>
+
+                <li role="presentation" class="active"><a href="{%url 'card_designer' event_name=event.subdomain %}" ><span>STEP 7</span><span>Card designer</span></a></li>
+                </ul>  
+                <div class="tab-content">
+                <div id="step4" class="tab-pane fade in active">
+<div class="row">
+  <br>
+  <div class="col-md-3">
+    <p style="font-size:28px">Choose card look</p> 
+  </div>
+  <div class=" col-md-1">
+    <button type="submit" class="btn btn-primary btn-sx" style="vertical-align: middle" id="preview">
+                       {% trans "Preview" %}
+    </button>
+  </div>
+  <div class=" col-md-1">
+    <button type="submit" class="btn btn-primary btn-sx" style="vertical-align: middle" id="print">
+                       {% trans "Print" %}
+    </button>
+  </div>
+</div>
+<div class="row">
+      
+      <div class="col-md-4">
+        <label class="radio-inline" style="font-size:20px">
+          <input type="radio" name="cardType" value="1" checked="checked">Option 1
+        </label>
+        <br><br>
+        <ul id="sortable" style="border:1px solid;width:300px;height:187.5px">
+          <li id="companyInfo1" class="ui-state-default" title="Company info"><textarea id="companyInfoText1" style="width:96%;height:96%;resize:none;overflow:hidden;font-size:12px">Event/Company information</textarea></li>
+          <li id="personalInfo1" class="ui-state-default" title="Personal info"><textarea id="personalInfoText1" style="width:96%;height:96%;resize:none;overflow:hidden;font-size:12px">Personal information</textarea></li>
+          <li id="barcode1" class="ui-state-default" style="height:52.5px;width:84px">Barcode</li>
+        </ul>
+      </div>  
+
+      <div class="col-md-4">
+        <label class="radio-inline" style="font-size:20px">
+          <input type="radio" name="cardType" value="2">Option 2
+        </label>
+        <br><br>
+        <div id="wrapper2" style="border:1px solid; width:300px;height:187.5px">
+          <div id="sortable2Div" style="float:left">
+            <ul id="sortable2">
+              <li id="companyInfo2" class="ui-state-default"><textarea id="companyInfoText2" style="width:99%;height:99%;resize:none;overflow:hidden;font-size:12px">Event/Company information</textarea></li>
+              <li id="personalInfo2" class="ui-state-default"><textarea id="personalInfoText2" style="width:99%;height:99%;resize:none;overflow:hidden;font-size:12px">Personal information</textarea></li>
+            </ul>
+          </div>  
+          <div id="barcode2" class="ui-state-default" style="border:1px solid;height:84px;width:52.5px;float:right">Barcode</div>
+        </div>  
+      </div>  
+
+      <div class="col-md-4">
+          <label class="radio-inline" style="font-size:20px">
+            <input type="radio" name="cardType" value="3">Option 3
+          </label>
+          <br><br>
+          <div id="wrapper3" style="border:1px solid; width:300px;height:187.5px">
+            <div id="barcode3" class="ui-state-default" style="height:84px;width:52.5px;border:1px solid; float:left">Barcode</div>
+              <div id="sortable3Div" style="float:left">
+                <ul id="sortable3">
+                  <li id="companyInfo3" class="ui-state-default"><textarea id="companyInfoText3" style="width:96%;height:96%;resize:none;overflow:hidden;font-size:12px">Event/Company information</textarea></li></li>
+                  <li id="personalInfo3" class="ui-state-default"><textarea id="personalInfoText3" style="width:96%;height:96%;resize:none;overflow:hidden;font-size:12px">Personal information</textarea></li>
+                </ul>
+              </div>  
+            </div>  
+          </div>  
+
+  </div> 
+  <br>
+  <div class="row" id="centerDiv">
+    <div class='col-md-2 col-md-offset-1'>
+      <h4><b><u>Change order of labels</u></b></h4>
+      <ul style='list-style-type: none;' id="orderList">
+        <li style="height:65.7px" id="orderEvent">Event/Company information</li>
+        <li style="height:65.7px" id="orderPersonal">Personal information</li>
+        <li style="height:65.7px" id="orderBarcode">Barcode</li>
+      </ul>  
+    </div>
+    <div class='col-md-2'>
+      <br><br><br><br>
+      <img src="{% static 'images/exchange.png' %}" width="40px" alt="download" class="exchangeOrder" id="exchangeOrder1">
+      <br><br><br>
+      <img src="{% static 'images/exchange.png' %}" width="40px" alt="download" class="exchangeOrder" id="exchangeOrder2">
+    </div>
+    <div class='col-md-7'>
+      <ul id='sortableL' style='border:1px solid;width:600px;height:377px'><li id='companyInfo1L' class='ui-state-default' title='Company info'><textarea id='companyInfoText1L' style='width:96%;height:96%;resize:none;overflow:hidden;font-size:19px'>Event/Company information</textarea></li><li id='personalInfo1L' class='ui-state-default' title='Personal info'><textarea id='personalInfoText1L' style='width:96%;height:96%;resize:none;overflow:hidden;font-size:19px'>Personal information</textarea></li><li id='barcode1L' class='ui-state-default' style='height:104.7px;width:167.5px'>Barcode</li></ul>
+
+    <div id='wrapper2L' style='border:1px solid;width:600px;height:377px;display:none'>
+      <div id='sortable2DivL' style='float:left'>
+        <ul id='sortable2L'><li id='companyInfo2L' class='ui-state-default'><textarea id='companyInfoText2L' style='width:99%;height:99%;resize:none;overflow:hidden;font-size:19px'>Event/Company information</textarea></li><li id='personalInfo2L' class='ui-state-default'><textarea id='personalInfoText2L' style='width:99%;height:99%;resize:none;overflow:hidden;font-size:19px'>Personal information</textarea></li>
+        </ul>
+      </div>
+      <div id='barcode2L' class='ui-state-default' style='border:1px solid;height:167.5px;width:104.7px;float:right'>Barcode</div>
+    </div>
+
+    <div id='wrapper3L' style='border:1px solid; width:600px;height:377px;display:none'>
+      <div id='barcode3L' class='ui-state-default' style='height:167.5pxpx;width:104.7px;border:1px solid; float:left'>Barcode</div><div id='sortable3DivL' style='float:left'><ul id='sortable3L'><li id='companyInfo3L' class='ui-state-default'><textarea id='companyInfoText3L' style='width:96%;height:96%;resize:none;overflow:hidden;font-size:19px'>Event/Company information</textarea></li></li><li id='personalInfo3L' class='ui-state-default'><textarea id='personalInfoText3L' style='width:96%;height:96%;resize:none;overflow:hidden;font-size:19px'>Personal information</textarea></li></ul></div></div>
+    </div>
+  </div>
+  <br> 
+  <div class="row">
+    <div class="col-md-6">
+      <h3>Edit company text</h3>
+      <div class="form-group">
+        <label for="fontType">Font type:</label>
+         <select class="form-control" id="fontTypeCompany">
+          <option value="Times New Roman">Times new roman</option>
+          <option value="Georgia">Georgia</option>
+          <option value="Arial">Arial</option>
+          <option value="Verdana">Verdana</option>
+          <option value="Courier New">Courier New</option>
+          <option value="Lucida Console">Lucida Console</option>
+      </select>
+      </div>
+      <div class="form-group">
+          <label for="fontSize">Font size</label>
+          <select class="form-control" id="fontSizeCompany">
+              <option value="19px">Small</option>
+              <option value="27px">Medium</option>
+              <option value="35px">Large</option>
+          </select>
+      </div>   
+    </div> 
+    <div class="col-md-6">
+      <h3>Edit personal text</h3>
+      <div class="form-group">
+        <label for="fontType">Font type:</label>
+         <select class="form-control" id="fontTypePersonal">
+          <option value="Times New Roman">Times new roman</option>
+          <option value="Georgia">Georgia</option>
+          <option value="Arial">Arial</option>
+          <option value="Verdana">Verdana</option>
+          <option value="Courier New">Courier New</option>
+          <option value="Lucida Console">Lucida Console</option>
+      </select>
+      </div>
+      <div class="form-group">
+          <label for="fontSize">Font size</label>
+          <select class="form-control" id="fontSizePersonal">
+              <option value="19px">Small</option>
+              <option value="27px">Medium</option>
+              <option value="35px">Large</option>
+          </select>
+      </div>   
+    </div>   
+</div>
+  <br>  
+    <div class="col-md-12">
+                        <div class="col-sm-6 col-md-6 col-lg-6 text-right save-next-content pull-right">
+                                <div class="next-btn">
+                                     <a href="{% url 'list_events' %}" class="btn"><img src="{% static 'images/next-btn.png' %}" alt="delete"><span>{% trans "FINISH" %}</span></a>    
+                                </div>
+                            </div>
+
+                    <div class="col-sm-2 col-md-2 col-lg-2 delete-content">
+                        <a href="#" class="btn" data-toggle="modal" data-target="#deleteModal"><img src="{% static 'images/delete.png' %}" alt="delete"><span>{% trans "DELETE" %}</span></a>
+                    </div>
+
+                              <!-- Modal -->
+                        <div class="modal fade" id="deleteModal" role="dialog">
+                          <div class="modal-dialog">
+                          
+                            <!-- Modal content-->
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                <h4 class="modal-title">Delete event</h4>
+                              </div>
+                              <div class="modal-body">
+                                <p>Are you sure you want to delete the event? All the lectures and payment methdos, bounded to the event
+                                  will be deleted as well.</p>
+                              </div>
+                              <div class="modal-footer">
+                                <a href="#" id="buttonDelete" name="{{event.subdomain}}" class="btn btn-default" data-dismiss="modal">Delete</a>
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                              </div>
+                            </div>
+                            
+                          </div>
+                        </div>
+                            <div class="col-sm-4 col-md-4 col-lg-4 save-back-content">
+                                <a href="{% url 'list_events' %}" class="btn"><img src="{% static 'images/download.png' %}" alt="download"><span>{% trans 'SAVE AND GO BACK TO THE EVENT LIST' %}</span></a>
+                            </div>
+                        <script> 
+                        $('#buttonDelete').on('click', function(e) {
+                          e.preventDefault();
+                          var name = $(this).data('name');
+                          $.ajax({
+                              url:  "{% url 'delete_event' event_name=event.subdomain %}",
+                              type: 'GET',
+                              success: function(html){
+                                parent.window.location="{% url 'list_events' %}";
+                              },
+                              error: function(){
+                                  alert("error");
+                              }  
+                          });  
+                      });
+                        
+                      $(document).ready(function(){
+                        $('.selectall').click(function(){
+                            if ($(this).is(':checked')){
+                                $(".sub-check").prop('checked', $(this).prop("checked"));
+                                //$('').attr('checked', true);
+                                $('.sub-check1 + span').addClass("required");
+                                $('.sub-check1 + span').prop("checked,false");
+                            } else {
+                                $(".sub-check").prop('checked',false);
+                                //$('.sub-check').attr('checked', false);
+                                $('.sub-check1 + span').removeClass("required");
+                            }
+                        });
+                        });
+
+                        $('.exchangeOrder').on('click', function(e) {
+                          var id = $(this).attr('id'); 
+                          var prev = $(this).prev("li");
+                          var next = $(this).next("li");
+                          if (id === 'exchangeOrder1'){
+                            //change order of 
+                            var second = $('#sortableL').find('li:eq(1)');
+                            var first = $('#sortableL').find('li:eq(0)');
+                            second.insertBefore(first);
+                            first.insertAfter(second);
+                            //change 
+                          }
+                          if (id === 'exchangeOrder2'){
+                            var third = $('#sortableL').find('li:eq(2)');
+                            var second = $('#sortableL').find('li:eq(1)');
+                            third.insertBefore(second);
+                            second.insertAfter(third);
+                            //$('#orderList').find('li:eq(1)').insertAfter('li:eq(2)');
+                          }
+                      });
+                        </script>
+                        <!--
+                        <div class="col-sm-6 col-md-6 col-lg-6 text-right save-next-content pull-right">
+                                <div class="next-btn">
+                                    <button class="btn" type="submit" ><img src="{% static 'images/next-btn.png' %}" alt="next-btn"><span>SAVE AND GO TO NEXT STEP</span></button>    
+                                </div>
+                            </div>
+                    </form>
+                    <div class="col-sm-2 col-md-2 col-lg-2 delete-content">
+                        <a href="#" class="btn" data-toggle="modal" data-target="#deleteModal"><img src="{% static 'images/delete.png' %}" alt="delete"><span>{% trans "DELETE" %}</span></a>
+                    </div>
+
+                        <div class="modal fade" id="deleteModal" role="dialog">
+                          <div class="modal-dialog">
+                          
+                            
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                <h4 class="modal-title">Delete event</h4>
+                              </div>
+                              <div class="modal-body">
+                                <p>Are you sure you want to delete the event? All the lectures and payment methdos, bounded to the event
+                                  will be deleted as well.</p>
+                              </div>
+                              <div class="modal-footer">
+                                <a href="#" id="buttonDelete" name="{{event.subdomain}}" class="btn btn-default" data-dismiss="modal">Delete</a>
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                              </div>
+                            </div>
+                            
+                          </div>
+                        </div>
+                            <div class="col-sm-4 col-md-4 col-lg-4 save-back-content">
+                                <a href="{% url 'list_events' %}" class="btn"><img src="{% static 'images/download.png' %}" alt="download"><span>{% trans 'SAVE AND GO BACK TO THE EVENT LIST' %}</span></a>
+                            </div>
+                        <script> 
+                        $('#buttonDelete').on('click', function(e) {
+                          e.preventDefault();
+                          var name = $(this).data('name');
+                          $.ajax({
+                              url:  "{% url 'delete_event' event_name=event.subdomain %}",
+                              type: 'GET',
+                              success: function(html){
+                                parent.window.location="{% url 'list_events' %}";
+                              },
+                              error: function(){
+                                  alert("error");
+                              }  
+                          });  
+                      });
+                        </script>
+
+                         -->
+             
+</div>   
+</div>
+</div>
+
+
+<script type="text/javascript">
+        
+
+        $(function() {
+
+          //global definition variables
+          widthCm = 8.6;
+          heightCm = 5.4;
+          //the ratio between width and height is 8.6/5.4 = 1.6
+          /*widthPx = 300;
+          heightPx = 187.5;*/
+          widthPx = 600;
+          heightPx = 377;
+
+          //when any of option is clicked, show the right magnified div in the cetner of the page
+          $("input[name='cardType']").change(function() {
+              
+              var type = $("input[name='cardType']:checked").val();
+              if (type == 1) {
+                $("#sortableL").show();
+                $("#wrapper2L").hide();
+                $("#wrapper3L").hide();
+              }
+              if (type == 2) {
+                $("#sortableL").hide();
+                $("#wrapper2L").show();
+                $("#wrapper3L").hide();
+              }
+              if (type == 3) {
+                $("#sortableL").hide();
+                $("#wrapper2L").hide();
+                $("#wrapper3L").show();
+              }
+          });
+
+          $("#print").click(function() {
+            
+            if ($("input[name='cardType']:checked").val()){
+
+            var type = $("input[name='cardType']:checked").val();
+
+            var ratios = new Array();
+
+              if (type == 1) { 
+                var ratios = calculateRatio(1);
+                var orderC = ratios['cOrder'];
+                var orderP = ratios['pOrder'];
+                var orderC = ratios['bOrder'];  
+                var mywindow1 = window.open('', 'PRINT', 'height=400,width=600');
+                var template1 = 
+                  "<div id='preview-modal' style='width:8.6cm;height:5cm;'><div style='positon:absolute;margin-left:" + ratios[0].value[0]  +"cm;top:" + ratios[0].value[1] + "cm;width:" + ratios[0].value[2] +"cm ;height:" + ratios[0].value[3] +"cm'>" + ratios[0].value[4] + "</div><div style='positon:absolute;margin-left:" + ratios[1].value[0]  +"cm;top:" + ratios[1].value[1] + ";width:" + ratios[1].value[2] + "cm ;height:" + ratios[1].value[3] +"cm'>" + ratios[1].value[4] + "</div><div style='positon:absolute;margin-left:" + ratios[2].value[0]  +"cm;top:" + ratios[2].value[1] + "cm;width:" + ratios[2].value[2] + "cm ;height:" + ratios[2].value[3] +"cm'>" + ratios[2].value[4] + "</div></div>";
+                mywindow1.document.write(template1);
+                mywindow1.print();
+                mywindow1.close();
+              }
+              if (type == 2) {
+                var ratios = calculateRatio(2);
+                var orderC = ratios['cOrder'];
+                var orderP = ratios['pOrder'];
+                //8.6cm - 
+                var mywindow2 = window.open('', 'PRINT', 'height=400,width=600');
+                var template2 = 
+                "<div style='width:8.6cm;height:5cm;'><div style='float:left;width:6.9cm;height:5cm'><div style='margin-left:" + ratios[0].value[0] + "cm;top:" + ratios[0].value[1] + "cm;width:" + ratios[0].value[2] + "cm;height:" + ratios[0].value[3] +"cm'>" + ratios[0].value[4] + "</div><div style='margin-left:"+ ratios[1].value[0] + "cm;top:" + ratios[1].value[1] + "cm;width:" + ratios[1].value[2] + "cm;height:" + ratios[1].value[3] + "cm'>" + ratios[1].value[4] + "</div></div><div style='border:1px solid;float:right;width:1.5cm;height:2.4cm'><img src='{% static "barcode90.jpg" %}'  /></div></div>";  
+                mywindow2.document.write(template2);
+                mywindow2.print();
+                mywindow2.close();
+              }
+              if (type == 3) {
+                var ratios = calculateRatio(3);
+                var orderC = ratios['cOrder'];
+                var orderP = ratios['pOrder'];
+
+                var mywindow3 = window.open('', 'PRINT', 'height=400,width=600');
+
+                var template3 = 
+                "<div style='width:8.6cm;height:5cm'><div style='float:left;width:1.5cm;height:2.4cm;border:1px solid;margin-top:" + ratios[2].value[0] + "cm'><img src='{% static "barcode90.jpg" %}'  /></div><div style='float:right;width:6.9cm;height:5cm'><div style='margin-left:" + ratios[0].value[0] + ";top:" + ratios[0].value[1] + "cm;width:" + ratios[0].value[2] + "cm;height:" + ratios[0].value[3] +"cm'>" + ratios[0].value[4] + "</div><div style='margin-left:"+ ratios[1].value[0] + "cm;top:" + ratios[1].value[1] + "cm;width:" + ratios[1].value[2] + "cm;height:" + ratios[1].value[3] + "cm'>" + ratios[1].value[4] + "</div></div></div>"; 
+                mywindow3.document.write(template3);
+                mywindow3.print();
+                mywindow3.close();
+              }
+            } else {
+              alert('You need to select one of the card type options');
+            }   
+          });
+        });
+        //preview function
+        $( "#preview" ).button().on( "click", function() {
+            if ($("input[name='cardType']:checked").val()){
+
+              var type = $("input[name='cardType']:checked").val();
+              var ratios = new Array();
+              var ratios = calculateRatio(type);
+
+              if (type == 1) {
+
+                var orderC = ratios['cOrder'];
+                var orderP = ratios['pOrder'];
+                var orderC = ratios['bOrder'];  
+                //company info is first
+
+                var template = 
+                "<div id='preview-modal' style='width:8.6cm; height:5.4cm; box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);transition: 0.3s;border-radius: 5px;' title='Preview'><div style='positon:absolute;border:1px solid;margin-left:" + ratios[0].value[0]  +"cm;top:" + ratios[0].value[1] + "cm;width:" + ratios[0].value[2] +"cm ;height:" + ratios[0].value[3] +"cm'>" + ratios[0].value[4] + "</div><div style='positon:absolute;border:1px solid;margin-left:" + ratios[1].value[0]  +"cm;top:" + ratios[1].value[1] + ";width:" + ratios[1].value[2] + "cm ;height:" + ratios[1].value[3] +"cm'>" + ratios[1].value[4] + "</div><div style='positon:absolute;border:1px solid;margin-left:" + ratios[2].value[0]  +"cm;top:" + ratios[2].value[1] + "cm;width:" + ratios[2].value[2] + "cm ;height:" + ratios[2].value[3] +"cm'>" + ratios[2].value[4] + "</div></div>";
+              }
+              if (type == 2) {
+
+                var orderC = ratios['cOrder'];
+                var orderP = ratios['pOrder'];
+                //8.6cm - 
+                var template = 
+                "<div style='border:1px solid;width:8.6cm;height:5.4cm;box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);transition: 0.3s;border-radius:5px;'><div style='float:left;width:6.9cm;height:5.4cm'><div style='border:1px solid;margin-left:" + ratios[0].value[0] + "cm;top:" + ratios[0].value[1] + "cm;width:" + ratios[0].value[2] + "cm;height:" + ratios[0].value[3] +"cm'>" + ratios[0].value[4] + "</div><div style='border:1px solid;margin-left:"+ ratios[1].value[0] + "cm;top:" + ratios[1].value[1] + "cm;width:" + ratios[1].value[2] + "cm;height:" + ratios[1].value[3] + "cm'>" + ratios[1].value[4] + "</div></div><div style='border:1px solid;float:right;width:1.5cm;height:2.4cm;margin-top:" + ratios[2].value[0] + "cm'><img src='{% static "barcode90.jpg" %}'></div></div>";  
+              }
+
+              if (type == 3) {
+
+                var orderC = ratios['cOrder'];
+                var orderP = ratios['pOrder'];
+
+                var template = 
+                "<div style='border:1px solid;width:8.6cm;height:5.4cm;box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);transition: 0.3s;border-radius:5px;'><div style='border:1px solid;float:left;width:1.5cm;height:2.4cm;margin-top:" + ratios[2].value[0] + "cm'><img src='{% static "barcode90.jpg" %}'  /></div><div style='float:right;width:6.9cm;height:5.2cm'><div style='border:1px solid;margin-left:" + ratios[0].value[0] + "cm;top:" + ratios[0].value[1] + "cm;width:" + ratios[0].value[2] + "cm;height:" + ratios[0].value[3] +"cm'>" + ratios[0].value[4] + "</div><div style='border:1px solid;margin-left:"+ ratios[1].value[0] + "cm;top:" + ratios[1].value[1] + "cm;width:" + ratios[1].value[2] + "cm;height:" + ratios[1].value[3] + "cm'>" + ratios[1].value[4] + "</div></div></div>";  
+              }
+              
+
+              //buiding the dialog window
+              dialog = $( "<div>" + template + "</div>" ).dialog({
+                autoOpen: false,
+                height: 400,
+                width: 500,
+                modal: true,
+                buttons: {
+                  Ok: function() {
+                    dialog.dialog( "close" );
+                  }
+                }
+              });
+              dialog.dialog( "open" );
+            }
+            else {
+              alert('You need to select one of the card type options');
+            }  
+        });
+
+        $( function() {
+
+            //the full height is 187.5px
+            //the 1.95cm+1.95cm+1.5cm=5.4 (since the height of barcode is 1.5cm) / the ratio is 0.36/0.36./0.28
+            //in pixels that is 67.5+67.5+52.2 = 187.5px
+            //global variables for the first option of card 
+            //2.4cm is the width of the barcode: the ratio is 2.4cm/8.6cm = 0.28; in pixels that is 84px
+            /*var dataBlock1Height = 67.5;
+            var barcode1Height = 52.5;
+
+            var barcode1Width = 84;*/
+
+            //the full height is 377px
+            //barcode height is 104.7px
+            //377 - 104.7 = 272.3
+            //272.3/2 = 136.15
+
+            var dataBlock1Height = 136.15;
+            var barcode1Height = 167.5;
+
+            var barcode1Width = 104.7;
+
+            
+            $( "#companyInfo1L" ).resizable({
+                 handles: 'e, s, w',
+                 grid: 10,
+                 maxHeight: 180,
+                 maxWidth: 592,
+                 minHeight: 40,
+                 minWidth: 150,
+                 containment: 'parent',
+                 start: function(event, ui) {
+                    previousSize = ui.size.height;
+                 },
+                 stop: function(event, ui) {
+                    var direction = $(this).data('ui-resizable').axis;
+                    if (direction == 's'){
+                      var currentSize = ui.size.height;
+                      //2xmargin top (2x5px) + 2xmargin bottom(2x5px) + 4x1px for borders = 24px
+                      var size = heightPx - barcode1Height - ui.size.height;
+                      if (previousSize<currentSize) {
+                          $( "#personalInfo1L" ).height(size);
+                      }
+                    }  
+                }
+            });
+            $( "#personalInfo1L" ).resizable({
+                 handles: 'e, s, w',
+                 grid: 10,
+                 maxHeight: 180,
+                 maxWidth: 592,
+                 minHeight: 40,
+                 minWidth: 150,
+                 containment: 'parent',
+                 start: function(event, ui) {
+                    previousSize = ui.size.height;
+                 },
+                 stop: function(event, ui) {
+                    var direction = $(this).data('ui-resizable').axis;
+                    if (direction == 's'){
+                      var currentSize = ui.size.height;
+                      //2xmargin top (2x5px) + 2xmargin bottom(2x5px) + 4x1px for borders = 24px
+                      var size = heightPx - barcode1Height - ui.size.height;
+                      if (previousSize<currentSize) {
+                        $( "#companyInfo1L" ).height(size);
+                      }
+                    }
+                }
+            });
+
+            //$( "#sortableL" ).sortable({
+              //placeholder: "ui-state-highlight"
+            //});
+            //$( "#sortableL" ).disableSelection();
+
+            
+            $('#barcode1L').draggable( {
+                containment: 'parent',
+                axis: "x",
+            } );
+
+            //$( "#sortable2L" ).sortable({
+              //placeholder: "ui-state-highlight"
+            //});
+            //$( "#sortable2L" ).disableSelection();
+
+            $( "#companyInfo2L" ).resizable({
+                 handles: 'n,e,s,w',
+                 containment: 'parent', 
+                 grid: 10,
+                 maxHeight: 250,
+                 maxWidth: 492,
+                 minHeight: 50,
+                 minWidth: 100,
+                 stop: function(event, ui) {
+                    var direction = $(this).data('ui-resizable').axis;
+                    if (direction == 's'){
+                      var size = heightPx - ui.size.height -19;
+                      var currentSizeP2 = ui.size.height;
+                      var sizeOfC2 = $("#companyInfo2L").outerHeight();
+                      var barcode2 = $("#barcode2").outerHeight();
+                      var sumC2 = currentSizeP2 + sizeOfC2;
+                      //if (sumC2>370) {
+                        //var size = heightPx - ui.size.height -19;
+                        //console.log('here 1');
+                        //console.log(size);
+                          //$( "#personalInfo2L" ).height(size);
+                      //}
+                    }  
+                  }
+            });
+            $( "#personalInfo2L" ).resizable({
+                 handles: 'n,e,s,w', 
+                 containment: 'parent',
+                 grid: 10,
+                 maxHeight: 250,
+                 maxWidth: 492,
+                 minHeight: 50,
+                 minWidth: 100,
+                 stop: function(event, ui) {
+                    var direction = $(this).data('ui-resizable').axis;
+                    if (direction == 's'){
+                      var currentSizeC2 = ui.size.height;
+                      var sizeOfP2 = $("#personalInfo2L").outerHeight();
+                      var barcode2 = $("#barcode2").outerHeight();
+                      console.log("current size");
+                      console.log(sizeOfP2);
+                      var sumC2 = currentSizeC2 + sizeOfP2;
+                      console.log(sumC2);
+                      //if (sumC2>370) {
+                        //var size = heightPx - ui.size.height -19;
+                        //$( "#companyInfo2L" ).height(size);
+                      //}  
+                    }  
+                }
+            });
+
+            $('#barcode2L').draggable( {
+                containment: 'parent',
+                axis: "y",
+            } );
+
+            //$( "#sortable3L" ).sortable({
+              //placeholder: "ui-state-highlight"
+            //});
+            //$( "#sortable3L" ).disableSelection();
+
+            $( "#companyInfo3L" ).resizable({
+                 handles: 'e, s, w', 
+                 grid: 10,
+                 maxHeight: 130,
+                 maxWidth: 432.5,
+                 minHeight: 50,
+                 minWidth: 100,
+                 containment:'parent',
+                 stop: function(event, ui) {
+                  var direction = $(this).data('ui-resizable').axis;
+                  if (direction == 's'){
+                    var size = 190 - ui.size.height;
+                    $( "#personalInfo3L" ).height(size);
+                  }  
+                }
+            });
+            $( "#personalInfo3L" ).resizable({
+                 handles: 'e, s, w',
+                 grid: 10,
+                 maxHeight: 130,
+                 maxWidth: 432.5,
+                 minHeight: 50,
+                 minWidth: 100,
+                 containment:'parent',
+                 stop: function(event, ui) {
+                  var direction = $(this).data('ui-resizable').axis;
+                  if (direction == 's'){
+                    var size = 190 - ui.size.height;
+                    $( "#companyInfo3L" ).height(size);
+                  }  
+                }
+            });
+
+            $('#barcode3L').draggable( {
+                containment: 'parent',
+                axis: "y",
+            } );
+
+          }); //end javascript function()
+        
+        //for the changing of the font type and size
+        $( "#fontTypeCompany" ).change(function() {
+            var value = this.value;
+            var textArea1 = $('#companyInfoText1L');
+            textArea1.css("font-family", value);
+            var textArea2 = $('#companyInfoText2L');
+            textArea2.css("font-family", value);
+            var textArea3 = $('#companyInfoText3L');
+            textArea3.css("font-family", value);
+        });
+        $( "#fontSizeCompany" ).change(function() {
+            var value = this.value;
+            var textArea1 = $('#companyInfoText1L');
+            textArea1.css("font-size", value);
+            var textArea2 = $('#companyInfoText2L');
+            textArea2.css("font-size", value);
+            var textArea3 = $('#companyInfoText3L');
+            textArea3.css("font-size", value);
+        });
+
+        $( "#fontTypePersonal" ).change(function() {
+            var value = this.value;
+            var textArea1 = $('#personalInfoText1L');
+            textArea1.css("font-family", value);
+            var textArea2 = $('#personalInfoText2L');
+            textArea2.css("font-family", value);
+            var textArea3 = $('#personalInfoText3L');
+            textArea3.css("font-family", value);
+        });
+        $( "#fontSizePersonal" ).change(function() {
+            var value = this.value;
+            var textArea1 = $('#personalInfoText1L');
+            textArea1.css("font-size", value);
+            var textArea2 = $('#personalInfoText2L');
+            textArea2.css("font-size", value);
+            var textArea3 = $('#personalInfoText3L');
+            textArea3.css("font-size", value);
+        });
+        
+        //function that picks up coordinates and eventually sends them to the printer
+        function save() {
+            if ($("input[type=radio]:checked").length > 0) {
+              var type = document.querySelector('input[name = "cardType"]:checked').value;
+              var array = calculateRatio(type);
+              $.ajax({
+                type: "POST",
+                url: "~/pythoncode.py",
+                data: { param: text}
+              }).done(function( o ) {
+                console.log("send");
+              });
+            }
+            else {
+              alert("You have no");
+            }
+        }   
+
+        function calculateRatio(type) {
+          
+          var ratio = new Array();
+          
+          var fontTypeCompany = document.getElementById("fontTypeCompany").value;
+          var fontSizeCompany = document.getElementById("fontSizeCompany").value;
+          var fontTypePersonal = document.getElementById("fontTypePersonal").value;
+          var fontSizePersonal = document.getElementById("fontSizePersonal").value;
+
+          if (type == 1) {
+
+            //widths and heights
+            var outerHeightCompany1 = $("#companyInfo1L").outerHeight();
+            var outerHeightTrueCompany1 = $("#companyInfo1L").outerHeight(true);
+            var outerWidthCompany1 = $("#companyInfo1L").outerWidth();
+            var outerWidthTrueCompany1 = $("#companyInfo1L").outerWidth(true);
+
+            var outerHeightPersonal1 = $("#personalInfo1L").outerHeight();
+            var outerHeightTruePersonal1 = $("#personalInfo1L").outerHeight(true);
+            var outerWidthPersonal1 = $("#personalInfo1L").outerWidth();
+            var outerWidthTruePersonal1 = $("#personalInfo1L").outerWidth(true);
+
+            //position of elements in ui: needed for presicision rendering
+            var listItemC = $( "#companyInfo1L" );
+            var orderC = $( "li" ).index( listItemC );
+
+            var listItemP = $( "#personalInfo1L" );
+            var orderP = $( "li" ).index( listItemP );
+
+            var listItemB = $( "#barcode1L" );
+            var orderB = $( "li" ).index( listItemB ); 
+
+            //margins
+
+            //of the card is 8.6cm x 5,4cm
+            //barcode's size is 2.4cm x 1.5cm
+            //difference full height - barcode height = 3.9cm 
+            
+            //3.9 cm ..... outerHeight od obeh plus margins oz. outerHeight(true) od obeh
+
+            var c1 = document.getElementById('companyInfo1L');
+            var leftC1 = document.getElementById('companyInfo1L').style.left;
+            leftC1 = parseInt(leftC1)*(widthCm/widthPx);
+            var topC1 = getStyle(c1, 'top');
+            topC1 = parseInt(topC1)*(heightCm/heightPx);
+            var widthC1 = (parseInt(outerWidthCompany1)*widthCm)/widthPx;
+            var heightC1 = (parseInt(outerHeightCompany1)*heightCm)/heightPx;
+
+            var p1 = document.getElementById('personalInfo1L');
+            var leftP1 = document.getElementById('personalInfo1L').style.left;
+            leftP1 = parseInt(leftP1)*(widthCm/widthPx);
+            var topP1 = getStyle(p1, 'top');
+            topP1 = parseInt(topP1)*(heightCm/heightPx);
+            var widthP1 = (parseInt(outerWidthPersonal1)*widthCm)/widthPx;
+            var heightP1 = (parseInt(outerHeightPersonal1)*heightCm)/heightPx;
+
+            var leftB1 = document.getElementById('barcode1L').style.left;
+            leftB1 = parseInt(leftB1)*(widthCm/widthPx);
+
+            var b1 = document.getElementById('barcode1L');
+            //barcode is on top
+            if (orderB == 1){
+              var topB1 = 1.95;
+            }
+            else if (orderB == 2) {
+              var topB1 = 3.9;
+            }
+            else {
+              var topB1 = 0;
+            }
+            var widthB1 = 2.4;
+            var heightB1 = 1.5;
+
+            sorted = new Array();
+            sorted.push({key:'P', value:orderP});
+            sorted.push({key:'C', value:orderC});
+            sorted.push({key:'B', value:orderB});
+
+            sorted.sort(function(a,b) {
+              return a.value - b.value;
+            });
+
+            //text stuff
+            var companyTextFinal = $('#companyInfoText1L').val().replace(/\n/g, '<br />');
+            var personalTextFinal = $('#personalInfoText1L').val().replace(/\n/g, '<br />');
+
+          
+            for (var i=0;i<sorted.length;i++){
+              console.log(sorted[i].key);
+              if (sorted[i].key == 'C'){
+                sorted[i].value = [leftC1, topC1, widthC1, heightC1, companyTextFinal];
+              }
+              if (sorted[i].key == 'P'){
+                sorted[i].value = [leftP1, topP1, widthP1, heightP1, personalTextFinal];
+              }
+              if (sorted[i].key == 'B'){
+                sorted[i].value = [leftB1, topB1, 2.4, 1.5, "<img src='{% static "barcode.jpg" %}'  />"];
+              }
+            }
+
+            return sorted;
+          }
+
+          if (type == 2) {
+
+            //widths and heights
+            var outerHeightCompany2 = $("#companyInfo2L").outerHeight();
+            var outerHeightTrueCompany2 = $("#companyInfo2L").outerHeight(true);
+            var outerWidthCompany2 = $("#companyInfo2L").outerWidth();
+            var outerWidthTrueCompany2 = $("#companyInfo2L").outerWidth(true);
+
+            var outerHeightPersonal2 = $("#personalInfo2L").outerHeight();
+            var outerHeightTruePersonal2 = $("#personalInfo2L").outerHeight(true);
+            var outerWidthPersonal2 = $("#personalInfo2L").outerWidth();
+            var outerWidthTruePersonal2 = $("#personalInfo2L").outerWidth(true);
+
+            //position of elements in ui: needed for presicision rendering
+            var listItemC2 = $( "#companyInfo2L" );
+            var orderC = $( "li" ).index( listItemC2 );
+
+            var listItemP2 = $( "#personalInfo2L" );
+            var orderP = $( "li" ).index( listItemP2 );
+            //margins
+
+            //of the card is 8.6cm x 5,4cm
+            //barcode's size is 2.4cm x 1.5cm
+
+            //8.6 - 1.5 cm = 7cm
+
+            var c2 = document.getElementById('companyInfo2L');
+            var leftC2 = document.getElementById('companyInfo2L').style.left;
+            //8.4(whole with)-1.5(barcode height - in this case width, because it is on the head positioncm) = 6.9
+            leftC2 = parseInt(leftC2)*(widthCm/widthPx);
+            var topC2 = getStyle(c2, 'top');
+            topC2 = parseInt(topC2)*(heightCm/heightPx);
+            var widthC2 = (parseInt(outerWidthTrueCompany2)*widthCm)/widthPx;
+            var heightC2 = (parseInt(outerHeightCompany2)*heightCm)/heightPx;
+
+            var p2 = document.getElementById('personalInfo2L');
+            var leftP2 = document.getElementById('personalInfo2L').style.left;
+            leftP2 = parseInt(leftP2)*(widthCm/widthPx)
+            var topP2 = getStyle(p2, 'top');
+            topP2 = parseInt(topP2)*(heightCm/heightPx)
+            var widthP2 = (parseInt(outerWidthTruePersonal2)*widthCm)/widthPx;
+            var heightP2 = (parseInt(outerHeightPersonal2)*heightCm)/heightPx;
+
+            var b2 = document.getElementById('barcode2L');
+            var topB2 = document.getElementById('barcode2L').style.top;
+            topB2 = parseInt(topB2)*(heightCm/heightPx);
+
+            /*var widthB2 = 3.8;
+            var heightB2 = 1.8;*/
+
+            sorted2 = new Array();
+            sorted2.push({key:'P', value:orderP});
+            sorted2.push({key:'C', value:orderC});
+
+            sorted2.sort(function(a,b) {
+              return a.value - b.value;
+            });
+
+            sorted2.push({key:'B', value:2})
+
+            //text stuff
+            var companyTextFinal2 = $('#companyInfoText2L').val().replace(/\n/g, '<br />');
+            var personalTextFinal2 = $('#personalInfoText2L').val().replace(/\n/g, '<br />');
+
+
+            for (var i=0;i<sorted2.length;i++){
+              if (sorted2[i].key == 'C'){
+                sorted2[i].value = [leftC2, topC2, widthC2, heightC2, companyTextFinal2];
+              }
+              if (sorted2[i].key == 'P'){
+                sorted2[i].value = [leftP2, topP2,  widthP2, heightP2, personalTextFinal2];
+              }
+              //information about the position of the barcode, save on the third spot
+              sorted2[2].value = [topB2];
+            }
+            return sorted2;
+          }
+          if (type == 3) {
+            //widths and heights
+            var outerHeightCompany3 = $("#companyInfo3L").outerHeight();
+            var outerHeightTrueCompany3 = $("#companyInfo3L").outerHeight(true);
+            var outerWidthCompany3 = $("#companyInfo3L").outerWidth();
+            var outerWidthTrueCompany3 = $("#companyInfo3L").outerWidth(true);
+
+            var outerHeightPersonal3 = $("#personalInfo3L").outerHeight();
+            var outerHeightTruePersonal3 = $("#personalInfo3L").outerHeight(true);
+            var outerWidthPersonal3 = $("#personalInfo3L").outerWidth();
+            var outerWidthTruePersonal3 = $("#personalInfo3L").outerWidth(true);
+
+            //position of elements in ui: needed for presicision rendering
+            var listItemC3 = $( "#companyInfo3L" );
+            var orderC = $( "li" ).index( listItemC3 );
+
+            var listItemP3 = $( "#personalInfo3L" );
+            var orderP = $( "li" ).index( listItemP3 );
+            //margins
+
+            //console.log('company: ' + outerHeightCompany3 + ' ' + outerHeightTrueCompany3 + ' ' + outerWidthCompany3 + ' '+outerWidthTrueCompany3 );
+            //console.log('personal: ' + outerHeightPersonal3 + ' ' + outerHeightTruePersonal3 + ' ' + outerWidthPersonal3 + ' '+outerWidthTruePersonal3 );
+
+            //of the card is 8.6cm x 5,4cm
+            //barcode's size is 2.4cm x 1.5cm
+
+            var c3 = document.getElementById('companyInfo3L');
+            var leftC3 = document.getElementById('companyInfo3L').style.left;
+            leftC3 = parseInt(leftC3)*(widthCm/widthPx);
+            var topC3 = document.getElementById('companyInfo3L').style.top;
+            topC3 = parseInt(topC3)*(heightCm/heightPx);
+            var widthC3 = (parseInt(outerWidthCompany3)*widthCm)/widthPx;
+            var heightC3 = (parseInt(outerHeightCompany3)*heightCm)/heightPx;
+
+            var p3 = document.getElementById('personalInfo3L');
+            var leftP3 = document.getElementById('personalInfo3L').style.left;
+            leftP3 = parseInt(leftP3)*(widthCm/widthPx);
+            var topP3 = getStyle(p3, 'top');
+            topP3 = parseInt(topP3)*(heightCm/heightPx);
+            var widthP3 = (parseInt(outerWidthPersonal3)*widthCm)/widthPx;
+            var heightP3 = (parseInt(outerHeightPersonal3)*heightCm)/heightPx;
+
+            var b3 = document.getElementById('barcode3L');
+            var topB3 = document.getElementById('barcode3L').style.top;
+            topB3 = parseInt(topB3)*(heightCm/heightPx);
+
+            sorted3 = new Array();
+            sorted3.push({key:'P', value:orderP});
+            sorted3.push({key:'C', value:orderC});
+
+            sorted3.sort(function(a,b) {
+              return a.value - b.value;
+            });
+
+            sorted3.push({key:'B', value:2});
+
+            //text stuff
+            var companyTextFinal3 = $('#companyInfoText3L').val().replace(/\n/g, '<br />');
+            var personalTextFinal3 = $('#personalInfoText3L').val().replace(/\n/g, '<br />');
+
+            for (var i=0;i<sorted3.length;i++){
+              if (sorted3[i].key == 'C'){
+                sorted3[i].value = [leftC3, topC3, widthC3, heightC3, companyTextFinal3];
+              }
+              if (sorted3[i].key == 'P'){
+                sorted3[i].value = [leftP3, topP3,  widthP3, heightP3, personalTextFinal3];
+              }
+              //information about the position of the barcode, save on the third spot
+              sorted3[2].value = [topB3];
+            }
+
+            return sorted3;
+          }
+        }
+
+        var getStyle = function (e, styleName) {
+            var styleValue = "";
+            if(document.defaultView && document.defaultView.getComputedStyle) {
+                styleValue = document.defaultView.getComputedStyle(e, "").getPropertyValue(styleName);
+            }
+            else if(e.currentStyle) {
+                styleName = styleName.replace(/\-(\w)/g, function (strMatch, p1) {
+                    return p1.toUpperCase();
+                });
+                styleValue = e.currentStyle[styleName];
+            }
+            return styleValue;
+        }
+
+</script>
+{% endblock content %}

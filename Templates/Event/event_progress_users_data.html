@@ -1,0 +1,318 @@
+{% extends "base.html" %} 
+{% load staticfiles %} 
+{% load bootstrap3 %} 
+{% bootstrap_css %}
+{% bootstrap_javascript %} 
+{% load i18n %} 
+{% load widget_tweaks %} 
+{% load sorted_fields %}
+{% load lstatus %}
+{% load tz %}
+{% block head %} 
+{{block.super}}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.js"></script>
+{{ form.media }} {% endblock %} 
+{%block header%}
+<div class="header">
+   <div class="row">
+      <div class="header-top">
+         <img src="{% static 'images/logo.png' %}" alt="logo">
+      </div>
+      <div class="header-bottom">
+         <div class="container">
+            <div class="row">
+               <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                  <ul class="nav nav-pills">
+                     <li class="active"><a href="{% url 'list_events' %}">MY EVENTS</a></li>
+                     <li><a href="{% url 'add_event' %}">CREATE EVENT</a></li>
+                  </ul>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
+{%endblock header%}
+<!--header-ends-->
+{% block content %}
+<section class="my-events-content event-data">
+   <div class="container">
+      <div class="row">
+         <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <div class="tab-content">
+               <div class="tab-pane fade in active">
+                  <h3>Event in progress DATA</h3>
+                  <div class="col-sm-6 col-md-6 col-lg-6 event-content">
+                     <!-- <p>Here you can edit, manage and view your events!</p> -->
+                  </div>
+               </div>
+            </div>
+            <div class="tab-pane fade in active event-data-content">
+               <ul class="nav nav-tabs">
+                  <li role="presentation"{% if active_filter == 'registered' %} class="active"{% endif %}><a href="{% url 'event_progress_users_data' event_name=event.subdomain %}">{% trans 'Registered' %}</a></li>
+                  <li role="presentation"{% if active_filter == 'realtime' %} class="active"{% endif %}><a href="{% url 'event_progress_users_data_real_time' event_name=event.subdomain %}">{% trans 'On event' %}</a></li>
+                  <li role="presentation"{% if active_filter == 'addnew' %} class="active"{% endif %}><a href="{% url 'event_progress_users_data_add_new' event_name=event.subdomain %}">{% trans 'Add new participant' %}</a></li>
+               </ul>
+               {% if active_filter == 'realtime' %}
+               <div class="btn-group col-sm-6 col-md-6 col-lg-6 on-event-top-content">
+                    <button class="btn btn-default text-btn dropdown-toggle lecture-select" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" >
+                    <i class="fa fa-arrows-v" aria-hidden="true"></i>
+                  {{ active_lecture }}
+                  </button>
+                  <ul class="dropdown-menu lecture-list" role="menu">
+                     {% for lecture in lectures %}
+                     {% if forloop.first %}
+                     <li>
+                        <a class="active" href="{% url 'event_progress_users_data_real_time_lecture' event_name=event.subdomain lecture_id=lecture.id %}">{{ lecture.name }}</a>
+                     </li>
+                     {% else %}
+                     <li>
+                        <a href="{% url 'event_progress_users_data_real_time_lecture' event_name=event.subdomain lecture_id=lecture.id %}">{{ lecture.name }}</a>
+                     </li>
+                     {% endif %}
+                     {% endfor %}
+                  </ul>
+               </div>
+               {% endif %}
+               {% if active_filter != 'addnew' %}
+               {% if active_filter == 'registered' %}
+               <div class="col-sm-6 col-md-6 col-lg-6 event-list event-progress">
+                  <div class="input-group stylish-input-group">
+                     <input type="text" class="form-control" placeholder="Search" id="search">
+                     <span class="input-group-addon">
+                     <button type="submit">
+                     <span class="glyphicon glyphicon-search"></span>
+                     </button>
+                     </span>
+                  </div>
+               </div>
+               {% else %}
+               <div class="col-sm-6 col-md-6 col-lg-6 event-list on-event-top-content">
+                  <div class="input-group stylish-input-group">
+                     <input type="text" class="form-control" placeholder="Search" id="search">
+                     <span class="input-group-addon">
+                     <button type="submit">
+                     <span class="glyphicon glyphicon-search"></span>
+                     </button>
+                     </span>
+                  </div>
+               </div>
+               {% endif %}
+               {% endif %}
+               {% if active_filter == 'addnew' %}
+               <div class="panel-body new-participant">
+                  <form method="POST" action="{% url 'event_progress_users_data_add_new' event_name=event.subdomain %}">
+                     <div class="row">
+                        <div class="form-group col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                           {% csrf_token %}
+                           <div class="form-group col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                              {{ form.name.errors }}
+                              <label for="{{ form.name.id_for_label }}">Name and surname</label>
+                              {{ form.name|add_class:"form-control"}}
+                           </div>
+                           <div class="form-group col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                              {{ form.form.company_name.errors }}
+                              <label for="{{ form.name.id_for_label }}">Company</label>
+                              {{ form.company_name|add_class:"form-control" }}
+                           </div>
+                           <div class="form-group col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                              <label class="control-label" for="id_company_name">{% trans 'Date of registration' %}</label>
+                              <input class="form-control" id="id_company_name" maxlength="256" name="company_name" value="{% now 'DATETIME_FORMAT' %}" title="" type="text" disabled>
+                           </div>
+                           <div class="form-group col-xs-7 col-sm-7 col-md-7 col-lg-7 pull-right">
+                              {{ form.uhf_id.errors }}
+                              <label for="{{ form.uhf_id.id_for_label }}">UHF UID</label>
+                              {{ form.uhf_id|add_class:"form-control" }}
+                           </div>
+                           <div class="form-group col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                              {{ form.note.errors }}
+                              <label for="{{ form.note.id_for_label }}">Notes</label>
+                              {{ form.note|add_class:"form-control" }}
+                           </div>
+                           <div class="col-xs-12 page-header lectures-event-add-new">
+                                <h3>
+                                    Signup for the following lectures:
+                                </h3>
+                                <ul>
+                                    {% for lecture in event.lecture_set.all %}
+                                    <li class="col-xs-5">
+                                        <label class="checkbox-inline checkbox-bootstrap">
+                                            <input class="sub-check" type="checkbox" checked name="lectureSignUp" value="{{ lecture.id }}">
+                                            <span class="checkbox-placeholder"></span>
+                                        </label>
+                                        <span class="lead">
+                                            {{ lecture.name }}
+                                        </span>
+                                        <br/>
+                                        <span class="glyphicon glyphicon-calendar"></span>
+                                        <span>
+                                            {{ lecture.start_time|timezone:event.timezone|date:'M d, h:i A' }}&nbsp;
+                                            - &nbsp;{{ lecture.end_time|timezone:event.timezone|date:'M d, h:i A' }}
+                                        </span>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>  
+                           {% buttons %}
+                           <div class="col-sm-12 col-md-12 col-lg-12">
+                              <button type="submit" class="btn save col-sm-4 col-md-4 col-lg-4">SAVE</button>
+                              <div class="col-sm-1 col-md-1 col-lg-1"></div>
+                              <button type="submit" class="btn add-print col-sm-4 col-md-4 col-lg-4">ADD AND PRINT</button>
+                           </div>
+                           {% endbuttons %}
+                        </div>
+                     </div>
+                  </form>
+               </div>
+               {% else %}
+               <div class="row">
+                  <div class="col-xs-12 progress-table">
+                    <form method="post" action="{% url 'event_progress_users_data' event_name=event.subdomain %}" id="deleteParticipants">
+                        {% csrf_token %}
+                     <table class="table">
+                        <thead>
+                           <tr>
+                              <th>
+                                <label class="checkbox-inline checkbox-bootstrap checkbox-lg">
+                                    <input class="sub-check" type="checkbox" id="checkAll">
+                                    <span class="checkbox-placeholder"></span>
+                                </label>
+                              </th>
+                              <th>Participant</th>
+                              <th>Company</th>
+                              <th>Date of registration</th>
+                              <th>Note</th>
+                              <th></th>
+                              <th></th>
+                              <th></th>
+                           </tr>
+                        </thead>
+                        <tbody id="filteredlist">
+                           {% for participant in participants %}
+                           <!--             {% if participant.payed %}
+                              <tr class="table success">
+                              {% else %}
+                              <tr class="table warning">
+                              {% endif %} -->
+                           <td>
+                              <label class="checkbox-inline checkbox-bootstrap checkbox-lg">
+                              <input class="sub-check" type="checkbox" name="participant" id="id_participant" value="{{ participant.id }}">
+                              <span class="checkbox-placeholder"></span>
+                              </label>
+                           </td>
+                           {% for value in participant|sorted_fields:selected_fields %}
+                           <td>{% if value %}{{ value }}{% endif %}</td>
+                           {% endfor %}
+                           <td>{{ participant.date_of_registration|date:'SHORT_DATETIME_FORMAT' }}</td>
+                           <td>{% if participant.note %}{{ participant.note }}{% endif %}</td>
+                           <td><href="#" data-toggle="modal" data-target="#myModal" onclick="openPopup({{ participant.id }}, '{{ participant.payed }}', '{{ participant.name }}', '{{ participant.surname }}', '{{ participant.user.username}}', '{{ participant.uhf_id }}', '{{ participant.note }}', '{{ participant.barcode_no }}', '{{ participant.company_name }}');"><i class="fa fa-pencil" aria-hidden="true"></i></a></td>
+                           <td><a href=""><i class="fa fa-print" aria-hidden="true"></i></a></td>
+                           </tr>
+                           {% endfor %}
+                        </tbody>
+                     </table>
+                     </form>
+                  </div>
+                  <div class="col-xs-12 actions-event-progress">
+                    <div class="col-xs-1 delete-selected-user">
+                        <a href="#" class="btn" id="removeSelected">
+                            <span class="glyphicon glyphicon-trash delete" style="font-size: 16px;"></span>
+                        </a>
+                    </div>
+                    <div class="col-xs-2 pull-right save-excel">
+                        {% if active_filter == 'registered' %}
+                        <a class="btn" href="{% url 'event_progress_users_data_download' event_name=event.subdomain %}">
+                        <img src="{% static 'images/download.png' %}" alt="download">
+                        <span>SAVE TO EXCEL</span>
+                        </a>
+                        {% elif active_filter == 'realtime' %}
+                        <a class="btn" href="{% url 'event_progress_users_data_real_time_download' event_name=event.subdomain %}">
+                            <img src="{% static 'images/download.png' %}" alt="download">
+                            <span>SAVE TO EXCEL</span>
+                            {% endif %}
+                        </a>
+                    </div>
+                  </div>
+               </div>
+               {% endif %}
+               <!-- modal popup -->
+               <div class="modal fade new-modal-ui" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                  <div class="modal-dialog" role="document">
+                     <div class="modal-content">
+                        <div class="modal-body">
+                        <h4 class="modal-title" id="exampleModalLabel">{% trans 'Participant info' %}</h4>
+                           Name and surname: <p id="modalUserInfo">Name Surname</p>
+                           Company name: <p id="companyName">Company name</p>
+                           Barcode: <p id="barcode">Barcode</p>
+                           {% if active_filter == 'realtime' %}
+                           <form method="POST" action="{% url 'event_progress_users_data_real_time' event_name=event.subdomain  %}">
+                              {% else %}
+                           <form method="POST" action="{% url 'event_progress_users_data' event_name=event.subdomain  %}">
+                              {% endif %}
+                              {% csrf_token %}
+                              {% bootstrap_form form_update %}
+                              <input type="hidden" name="event_profile_id" value="0" id="event_profile_id">
+                              <button type="button" class="btn btn-secondary" data-dismiss="modal">{% trans 'Close' %}</button>
+                              <button type="submit" class="btn btn-primary">{% trans 'Save changes' %}</button>
+                        </div>
+                        </form>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+   </div>
+</section>
+<script>
+   function openPopup(userId, payedStatus, name, surname, username, uhfId, note, barcode, company_name) {
+
+       $('#modalUserInfo').html(name + ' ' + surname);// + ' ' + '(' + username + ')');
+       $('#companyName').html(company_name);
+       $('#barcode').html(barcode);
+       
+       $('input[name=event_profile_id]').val(userId);
+       if (note != 'None') {
+           $('input[name=note]').val(note);
+       } else {
+           $('input[name=note]').val('');
+       }
+       if (uhfId != 'None') {
+           $('input[name=uhf_id]').val(uhfId);
+       } else {
+           $('input[name=uhf_id]').val('');
+       }
+       if (payedStatus == 'True') {
+           $('input[name=payed]').prop('checked', true);
+       } else {
+           $('input[name=payed]').prop('checked', false);
+       }
+   
+   };
+</script>
+<script>
+   var $rows = $('#filteredlist tr');
+   $('#search').keyup(function() {
+   
+       var val = '^(?=.*\\b' + $.trim($(this).val()).split(/\s+/).join('\\b)(?=.*\\b') + ').*$',
+           reg = RegExp(val, 'i'),
+           text;
+   
+       $rows.show().filter(function() {
+           text = $(this).text().replace(/\s+/g, ' ');
+           return !reg.test(text);
+       }).hide();
+   });
+
+   $("#checkAll").on('click', function(){
+    $('input:checkbox').not(this).prop('checked', this.checked);
+   });
+   $('#removeSelected').click(function(){
+    var ok = confirm('{% trans "Are you sure that you want to remove selected participants from event?" %}');
+    if (ok) {
+        $('#deleteParticipants').submit();
+    } else {}
+   });
+</script>
+{% endblock content %}

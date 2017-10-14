@@ -1,0 +1,21 @@
+version: '3'
+
+services:
+  db:
+    image: mysql
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=r00tPasswd123
+      - MYSQL_DATABASE=conference
+  web:
+    build: .
+    command: ["/wait-for-it.sh", "db:3306", "--", "./run.sh"]
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+    environment:
+      - DJANGO_SETTINGS_MODULE=Ideconference.settings-dev
+    depends_on:
+      - "db"

@@ -1,0 +1,371 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load bootstrap3 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+{% load i18n %}
+{% load widget_tweaks %}
+
+{% block head %}
+{{block.super}}
+<link href="{% static 'css/stylesheet.css' %}" rel="stylesheet" type="text/css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.js"></script>
+{{ form.media }}
+{% endblock %}
+
+{%block header%}
+<div class="header">
+   <div class="row">
+      <div class="header-top">
+         <img src="{% static 'images/logo.png' %}" alt="logo">
+      </div>
+      <div class="header-bottom create-event-block">
+         <div class="container">
+            <div class="row">
+               <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
+{% endblock %}
+{% block content %}
+<section class="my-events-steps lectures">
+   <div class="container">
+      <div class="row">
+         <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 menu">
+            <ul class="nav nav-pills ">
+               <li role="presentation" class="first"><a href="#home"><span>STEP 1</span><span>Event details</span></a></li>
+               <li><a href="{% if event.add_finished %} {% url 'modify_event' event_name=event.subdomain %} {%else%} # {% endif %}"><span>STEP 2</span><span>Event text</span></a></li>
+               <li><a href="{% if event.add_finished %} {% url 'add_event_participants' event_name=event.subdomain %} {%else%} # {% endif %}"><span>STEP 3</span><span>Participant info</span></a></li>
+               <li><a href="{% if event.add_finished %} {% url 'add_event_participants' event_name=event.subdomain %} {%else%} # {% endif %}"><span>STEP 4</span><span>Companions</span></a></li>
+               <li class="active"><a href="{% if event.add_finished %} {% url 'add_event_participants' event_name=event.subdomain %} {%else%} # {% endif %}"><span>STEP 5</span><span>Lectures</span></a></li>
+               <li><a href="{% if event.add_finished %} {% url 'add_event_participants' event_name=event.subdomain %} {%else%} # {% endif %}"><span>STEP 6</span><span>Payment</span></a></li>
+               <li><a href="{% if event.add_finished %} {% url 'add_event_participants' event_name=event.subdomain %} {%else%} # {% endif %}"><span>STEP 7</span><span>Card designer</span></a></li>
+            </ul>
+            <div class="tab-content">
+               <div id="step5" class="tab-pane fade in active">
+                  <ul class="nav nav-pills sub-tab">
+                     <li id="nav1" class="first active"><a data-toggle="pill" href="#addtrack"><span>ADD TRACKS & LECTURES</span></a></li>
+                     <li id="nav2"><a data-toggle="pill" id="uploadclick" href="#uploadlecture"><span>UPLOAD LECTURES</span></a></li>
+                     <li id="nav3"><a data-toggle="pill" id="addedclick" href="#addedlecture"><span>ADDED LECTURES</span></a></li>
+                  </ul>
+                  <div class="tab-content">
+                     <div id="addtrack" class="tab-pane fade in active">
+                        <h3>STEP 5 Add tracks & lectures</h3>
+                        {{ tracks_form.non_field_errors }}
+                        {{ form.name.errors }}
+                        <form method="POST" action="{% url 'add_event_track' event_name=event.subdomain add_track=1 %}" class="form-inline">
+                           {% csrf_token %}
+                           <div class="fieldWrapper form-group col-md-12 col-lg-12 ">
+                              <div class="form-group col-sm-6 col-md-6 col-lg-6 track-name">
+                                 <label for="{{ form.name.id_for_label }}">TRACK NAME</label>
+                                 {{ tracks_form.name|add_class:"form-control" }}
+                              </div>
+                           </div>
+                           <div class="form-group col-sm-6 col-md-6 col-lg-6 pull-right payable-track">
+                              <label for="{{ form.track_is_payable.id_for_label }}" class="checkbox-inline checkbox-bootstrap checkbox-lg col-sm-6 col-md-5 col-lg-5">
+                              {{form.is_payable}}
+                              <span class="checkbox-placeholder"></span>
+                              Payable
+                              </label>
+                              {% buttons %}
+                              <button type="submit" class="btn col-sm-6 col-md-7 col-lg-7">
+                              {% trans 'ADD TRACK' %}
+                              </button>
+                              {% endbuttons %}
+                           </div>
+                        </form>
+                        <div class="form-group col-sm-6 col-md-6 col-lg-6"></div>
+                        <div class="form-group col-sm-6 col-md-6 col-lg-6 track-category">
+                           <label for="exampleSelect1">TRACK</label>
+                           {{form.track}}
+                        </div>
+                        {{ form.non_field_errors }}
+                        <form method="POST" id="basicform" >
+                           {% csrf_token %}
+                           <div class="form-group col-sm-6 col-md-6 col-lg-6">
+                           </div>
+                           <div class="col-sm-8 col-md-8 col-lg-8 lecture-name">
+                              {{ form.name.errors }}
+                              <label for="{{ form.name.id_for_label }}" >NAME OF LECTURE</label>
+                              {{ form.name|add_class:"form-control" }}
+                           </div>
+                           <div class="col-sm-4 col-md-4 col-lg-4 lecture-room">
+                              <label>LECTURE ROOM</label>
+                              <input class="form-control" type="" value="">
+                           </div>
+                           <div class="fieldWrapper form-group col-md-12 col-lg-12 dateContainer">
+                              <div class="form-group col-md-6 col-lg-6">
+                                 {{ form.start_time.errors }}
+                                 <label for="{{ form.start_time.id_for_label }}" >START TIME</label>
+                                 {{ form.start_time|add_class:"form-control" }}
+                              </div>
+                              <div class="form-group col-md-6 col-lg-6">
+                                 {{ form.end_time.errors }}
+                                 <label for="{{ form.end_time.id_for_label }}" >END TIME</label>
+                                 {{ form.end_time|add_class:"form-control"}}
+                              </div>
+                              <label class="col-sm-12 col-md-12 col-lg-12 tracking-title">TRACKING</label>
+                              <div class="col-sm-6 col-md-6 col-lg-6 form-group">
+                                 {{ form.device_id.errors }}
+                                 <label for="{{ form.bar_tracking.id_for_label }}" >UHF device ID</label>
+                                 {{ form.device_id|add_class:"form-control"}}
+                              </div>
+                              <div class="col-sm-6 col-md-6 col-lg-6 form-group">
+                                 <label class="control-label">UHF device position</label>
+                                 {{ form.device_entrance_position.errors }}
+                                 <label for="{{ form.bar_tracking.id_for_label }}" >UHF device position</label>
+                                 {{ form.device_entrance_position|add_class:"form-control"}}
+                              </div>
+                              <div class="form-checktrack col-sm-12 col-md-12 col-lg-12">
+                                 {{ form.bar_tracking.errors }}
+                                 <label class="checkbox-inline checkbox-bootstrap checkbox-lg">
+                                 {{ form.bar_tracking|add_class:"form-control"}}
+                                 <span class="checkbox-placeholder"></span>
+                                 Barcode tracking
+                                 </label>
+                              </div>
+                           </div>
+                           <div class="row">
+                              {% buttons %}
+                              {% if event.add_finished %}
+                              <a href="{% url 'list_events' %}" >
+                              {% trans "Back to the list" %}
+                              </a>
+                              <div class="col-sm-4 col-md-4 col-lg-4 save-back-content">
+                                 {% trans "Save" %}
+                                 {% else %}
+                                 <div class="col-sm-6 col-md-6 col-lg-6 text-right save-next-content pull-right">
+                                    <div class="next-btn">
+                                       <button type="submit"  class="btn"><img src="{% static 'images/next-btn.png' %}" alt="next-btn"><span>{% trans "SAVE AND GO TO NEXT STEP" %}</span></button>
+                                    </div>
+                                 </div>
+                                 <div class="col-sm-2 col-md-2 col-lg-2 delete-content" >
+                                    <a href="#" data-toggle="modal" data-target="#deleteModal" class="btn"><img src="{% static 'images/delete.png' %}" alt="delete"><span>DELETE</span></a>
+                                 </div>
+                                 <div class="col-sm-4 col-md-4 col-lg-4 save-back-content">
+                                    <a href="{% url 'list_events' %}"class="btn"><img src="{% static 'images/download.png' %}" alt="download"><span>{% trans "SAVE AND GO BACK TO THE EVENT LIST" %}</span></a>
+                                 </div>
+                                 
+                              </div>
+                           </div>
+                        </form>
+                        <!-- Modal -->
+                        <div class="modal fade" id="deleteModal" role="dialog">
+                           <div class="modal-dialog">
+                              <!-- Modal content-->
+                              <div class="modal-content">
+                                 <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                    <h4 class="modal-title">Delete event</h4>
+                                 </div>
+                                 <div class="modal-body">
+                                    <p>Are you sure you want to delete the event? All the lectures and payment methdos, bounded to the event
+                                       will be deleted as well.
+                                    </p>
+                                 </div>
+                                 <div class="modal-footer">
+                                    <a href="#" id="buttonDelete" name="{{event.subdomain}}" class="btn btn-default" data-dismiss="modal">Delete</a>
+                                    {% csrf_token %}
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                        <script>
+                           $('#buttonDelete').on('click', function(e) {
+                             e.preventDefault();   
+                             var name = $(this).data('name');
+                             $.ajax({
+                                 url:  "{% url 'delete_event' event_name=event.subdomain %}",
+                                 type: 'GET',
+                                 success: function(html){
+                                     parent.window.location="{% url 'list_events' %}";
+                                     e.preventDefault();   
+                                 },
+                                 error: function(){
+                                     alert("error");
+                                 }
+                             });
+                           });
+                        </script>
+<!--                         <div class="col-sm-4 col-md-4 col-lg-4 save-back-content">
+                           <a href="{% url 'list_events' %}"class="btn"><img src="{% static 'images/download.png' %}" alt="download"><span>{% trans "SAVE AND GO BACK TO THE EVENT LIST" %}</span></a>
+                        </div> -->
+                        {% endif %}
+                        {% endbuttons %}
+                        <!-- tab content -->
+                        <div id="uploadlecture" class="tab-pane fade">
+                           <h3>
+                              STEP 5 Upload lectures
+                              <p>Download .csv Lecture template and Upload your own lecture.</p>
+                           </h3>
+                           <div class="col-md-12 col-lg-12 upload-file">
+                              <form method="POST" id="upload" action="{% url 'add_event_lectures' event_name=event.subdomain %}" enctype="multipart/form-data">
+                                 {% csrf_token %}
+                           <div class="upload-photo">
+                                 {{file_form}}
+                                 <div>
+                                 <img src="{% static 'images/upload.png' %}" alt="upload">
+                                 <span>UPLOAD LECTURE</span>
+                                 </div>
+                              </div>
+                           </div>
+                                 {% if lectures %}
+                              <div class="upload-logo">
+                                <div class="download-template">
+                                <a href="{% url 'download_csv_sample' event_name=event.subdomain download='1' %}"><img src="{% static 'images/upload.png' %}" alt="upload"><span>DOWNLOAD TEMPLATE</span></a>
+                              </div>
+                              {% else %}
+                              <div class="download-template">
+                                 <a href="{% url 'download_csv_sample' event_name=event.subdomain download='1' %}"><img src="{% static 'images/upload.png' %}" alt="upload"><span>DOWNLOAD TEMPLATE</span></a> 
+                              </div>
+                              {% endif %}
+                              </div>
+                                 <div class="row">
+                                    {% buttons %}
+                                    {% if event.add_finished %}
+                                    <a href="{% url 'list_events' %}" >
+                                    {% trans "Back to the list" %}
+                                    </a>
+                                    <div class="col-sm-4 col-md-4 col-lg-4 save-back-content">
+                                       {% trans "Save" %}
+                                       {% else %}
+                                       <div class="col-sm-6 col-md-6 col-lg-6 text-right save-next-content pull-right">
+                                          <div class="next-btn">
+                                             <button type="submit" id="uploadbtn" class="btn"><img src="{% static 'images/next-btn.png' %}" alt="next-btn"><span>{% trans "SAVE AND GO TO NEXT STEP" %}</span></button>
+                                          </div>
+                                       </div>
+                                       <div class="col-sm-2 col-md-2 col-lg-2 delete-content" >
+                                          <a href="#" data-toggle="modal" data-target="#deleteModal" class="btn"><img src="{% static 'images/delete.png' %}" alt="delete"><span>DELETE</span></a>
+                                       </div>
+                                    <div class="col-sm-4 col-md-4 col-lg-4 save-back-content">
+                                       <a href="{% url 'list_events' %}"class="btn"><img src="{% static 'images/download.png' %}" alt="download"><span>{% trans "SAVE AND GO BACK TO THE EVENT LIST" %}</span></a>
+                                    </div>
+                                    </div>
+                                 </div>
+                                 {%endif%}
+                                 {%endbuttons%}
+                              </form>
+                           </div>
+                           <div id="addedlecture" class="tab-pane fade" >
+                              <h3>STEP 5 Added Lectures</h3>
+                                 {% for lecture in lectures %}
+                              <div class="lectures-data first">
+                                 <div class="col-sm-9 col-md-9 col-lg-9">
+                                    <span class="lecture-title">
+                                       {{ lecture.name }}
+                                       <div class="col-sm-3 col-md-3 col-lg-3 lectures-edit-content">
+                                          {% if lecture.is_payable %}<small>{% bootstrap_icon "usd" %}</small>{% endif %}
+                                          &nbsp; &nbsp; <a href="{% url 'modify_event_lecture' event_name=event.subdomain lecture_id=lecture.pk %}">{% bootstrap_icon "pencil" %}</a>
+                                          &nbsp; &nbsp; <a href="{% url 'remove_event_lecture' event_name=event.subdomain lecture_id=lecture.pk %}">{% bootstrap_icon "remove" %}</a>
+                                       </div>
+                                    </span>
+                                 </div>
+                              <div class="col-sm-12 col-md-12 col-lg-12 track-data">
+                                 <label> {{ lecture.track.name }}
+                                 {% if lecture.track.track_is_payable %}<span style="font-size: x-small;">{% bootstrap_icon "usd" %}</span>{% endif %}    </label>
+                              <div class="col-sm-12 col-md-12 col-lg-12 lectures-calendar">
+                                 <label>
+                                 <span class="input-group-addon">
+                                 <span class="glyphicon glyphicon-calendar">
+                                 <span class="lecture-datetime">{% trans "From" %} {{ lecture.start_time }} {% trans "to" %} {{ lecture.end_time }}</span>
+                                 </span>
+                                 </span>
+                                 </label>
+                              </div>
+                              <ul class="col-md-12 tracking-data">
+                                 <li class="col-sm-12 col-md-4 col-lg-4"><label>{% trans "Device ID:" %} {{ lecture.device_id }}</label></li>
+                                 <li class="col-sm-12 col-md-4 col-lg-4"><label>{% trans "Bar Tracking:" %} {{ lecture.bar_tracking }}</label></li>
+                                 <li class="col-sm-12 col-md-4 col-lg-4"><label>{% trans "Device position:" %} {{ lecture.device_entrance_position }}</label></li>
+                              </ul>
+                              </div>
+                              </div>
+                              {% endfor %}
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</section>
+<script type="text/javascript">
+$( document ).ready(function() {
+   console.log( "ready!" );
+$('#basicform').submit(function(e) {
+   e.preventDefault();
+   var csrftoken = jQuery("[name=csrfmiddlewaretoken]").val();
+   $.ajaxSetup({
+       beforeSend: function(xhr, settings) {
+           if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+               xhr.setRequestHeader("X-CSRFToken", csrftoken);
+           }
+       }
+   });
+   function csrfSafeMethod(method) {
+    // these HTTP methods do not require CSRF protection
+    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+   }
+$.ajax({
+      data:$(this).serialize(),
+      url:  "{% url 'add_event_lectures' event_name=event.subdomain %}",
+      type: 'POST',
+      success: function(html){
+         console.log('add_finished');
+         $('html,body').animate({
+            'scrollTop' : $('#uploadclick').position().top
+         });
+         $("#uploadclick").click();
+         $("#nav1").removeClass("active");
+         $("#nav2").addClass("active");
+
+          
+      },
+      error: function(){
+          alert("error");
+      }
+   });
+});
+$('#upload').submit(function(e) {
+   e.preventDefault();
+   var csrftoken = jQuery("[name=csrfmiddlewaretoken]").val();
+   $.ajaxSetup({
+       beforeSend: function(xhr, settings) {
+           if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+               xhr.setRequestHeader("X-CSRFToken", csrftoken);
+           }
+       }
+   });
+   function csrfSafeMethod(method) {
+    // these HTTP methods do not require CSRF protection
+    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+   }
+$.ajax({
+      data:$(this).serialize(),
+      url:  "{% url 'add_event_lectures' event_name=event.subdomain %}",
+      type: 'POST',
+      success: function(html){
+          console.log('add_finished');
+         $('html,body').animate({
+            'scrollTop' : $('#addedclick').position().top
+         });
+          $("#addedclick").click();
+          $("#nav2").removeClass("active");
+          $("#nav3").addClass("active");
+      },
+      error: function(){
+          alert("error");
+      }
+   });
+});
+
+
+});
+</script>
+{% endblock %}
+

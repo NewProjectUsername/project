@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load bootstrap3 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+{% load i18n %}
+{% load field_by_key %}
+
+{% block content %}
+
+<h1 class="page-header">
+    {{ event.name }}
+    <small>
+        {% trans 'Event registration' %}
+    </small>
+</h1>
+
+<div class="row" style="padding-bottom: 2%;">
+	<img src="http://placehold.it/700x150?text={{ event.name }}" class="img-fluid col-md-12" />
+</div>
+
+<div class="row" style="padding: 20px;" class="center">
+    <div class="col-md-12">
+        <ul class="nav nav-tabs">
+            <li role="presentation" class="active"><a href="{% url 'participant_info' event_name=event.subdomain %}">{% trans 'Step 1 - Participant information' %}</a></li>
+            {% if event.companion_fields %}
+            <li role="presentation" {% if event_profile == None or event_profile.registration_step_finished < 2 %} class="disabled" {% endif %}><a href= {% if event_profile != None and event_profile.registration_step_finished > 1 %} "{% url 'companion_info' event_name=event.subdomain %}" {% else %} "#" {% endif %}>{% trans 'Step 2 - Companion information' %}</a></li>
+            <li role="presentation" {% if event_profile == None or event_profile.registration_step_finished < 3 %} class="disabled" {% endif %}><a href= {% if event_profile != None and event_profile.registration_step_finished > 2 %} "{% url 'events_selector_visitor' event_name=event.subdomain %}" {% else %} "#" {% endif %}>{% trans 'Step 3 - Participation selector' %}</a></li>
+           <li role="presentation" {% if event_profile.registration_step_finished < 4 %} class="disabled" {% endif %}><a href="{% url 'payment' event_name=event.subdomain %}">{% trans 'Step 4 - Payment' %}</a></li>
+            {% else %}
+            <li role="presentation" {% if event_profile == None or event_profile.registration_step_finished < 3 %} class="disabled" {% endif %}><a href= {% if event_profile != None and event_profile.registration_step_finished > 2 %} "{% url 'events_selector_visitor' event_name=event.subdomain %}" {% else %} "#" {% endif %}>{% trans 'Step 2 - Participation selector' %}</a></li>
+            <li role="presentation" {% if event_profile.registration_step_finished < 4 %} class="disabled" {% endif %}><a href="{% url 'payment' event_name=event.subdomain %}">{% trans 'Step 3 - Payment' %}</a></li>
+            {% endif %}
+        </ul>
+    </div>
+</div>
+
+<form method="POST" action="{% url 'participant_info' event_name=event.subdomain %}">
+    {% csrf_token %}
+<div class="row" style="padding: 20px;">
+    {% if personal_fields or not user.is_authenticated %}
+        <div class="col-md-4">
+            <h3>{% trans 'Personal info' %}</h5>
+            {% if not user.is_authenticated %}
+                {% for field in new_user_form %}
+                    {% bootstrap_field field %}
+                {% endfor %}
+            {% endif %}
+            {% for field in personal_fields %}
+                {% bootstrap_field form|field_by_key:field %}
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% if company_fields %}
+    <div class="col-md-4">
+        <h3>{% trans 'Company info' %}</h3>
+        {% for field in company_fields %}
+            {% bootstrap_field form|field_by_key:field %}
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if event_fields %}
+    <div class="col-md-4">
+        <h3>{% trans 'Event info' %}</h3>
+        {% for field in event_fields %}
+            {% bootstrap_field form|field_by_key:field %}
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% bootstrap_form_errors form %}
+</div>
+
+<div class="row" style="padding: 20px;">
+{% buttons %}
+    <a href="{% url 'home' %}" class="btn btn-primary col-md-2 col-md-offset-4">
+        {% trans "Cancel" %}
+    </a>
+    <button type="submit" class="btn btn-primary col-md-2">
+        {% trans 'Continue' %}
+    </button>
+{% endbuttons %}
+</div>
+</form>
+
+{% endblock content %}

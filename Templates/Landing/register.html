@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load bootstrap3 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+{% load i18n %}
+{% load widget_tweaks %}
+
+{% block content %}
+
+<div class="overlay">
+  <!--section-starts-->
+  <section class="Banner">
+    <div class="container">
+      <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+           <!-- form starts -->
+            <form  class="form-signin" method="POST" action="{% url 'register' %}">
+                <h2 class="form-signin-heading"><span>ID.</span><span>Conference</span></h2>
+                <p>"A new conference experience"</p>
+                {% csrf_token %}
+                {% for field in user_form %}
+                <div class="form-signin-user">
+                  <label>{{ field.label }}</label>
+                  {% render_field field class+='form-control' %}
+                </div>
+                {% endfor %}
+                {% for field in profile_form %}
+                <div class="form-signin-user">
+                  <label>{{ field.label }}</label>
+                  {% render_field field class+='form-control' %}
+                </div>
+                {% endfor %}
+                     {% if alert %}
+                      <p class = "warning_msg" style="color:#ec008c;text-align:center;height:22.07px; ">
+                      <b>{{alert}}</b>
+                      </p>
+                  {% endif %}
+                 {% buttons %}
+                <button type="submit" class="btn btn-lg btn-primary btn-block">
+                       {% trans "Register" %}
+                </button>
+                {% endbuttons %} 
+                <!-- form end -->
+            </form>
+        </div>
+
+
+            
+        </div>
+    </div>
+  </section>
+  <!--section-end--> 
+  </div>
+    
+
+{% endblock content %}
