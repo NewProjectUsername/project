@@ -11,7 +11,7 @@ packaging==16.8
 pyparsing==2.2.0
 pytz==2017.2
 six==1.10.0
-Pillow==4.0.0
+Pillow==9.3.0
 django-mail-templated==2.6.5
 django-wkhtmltopdf==3.1.0
 paypalrestsdk==1.13.1
